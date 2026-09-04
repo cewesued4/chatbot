@@ -1,56 +1,115 @@
 import streamlit as st
 from openai import OpenAI
+import pypdf 
+from pypdf import PdfReader
+
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # Show title and description.
 st.title("💬 Chatbot")
 st.write(
-    "This is a simple chatbot that uses OpenAI's GPT-3.5 model to generate responses. "
-    "To use this app, you need to provide an OpenAI API key, which you can get [here](https://platform.openai.com/account/api-keys). "
-    "You can also learn how to build this app step by step by [following our tutorial](https://docs.streamlit.io/develop/tutorials/llms/build-conversational-apps)."
+    "This is a simple chatbot that uses a OpenAI model to summarize any document. " 
+        "Simply upload a file and select the summary type of your choice from the drop down menu to begin."
 )
 
 # Ask user for their OpenAI API key via `st.text_input`.
 # Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
 # via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
-openai_api_key = st.text_input("OpenAI API Key", type="password")
-if not openai_api_key:
-    st.info("Please add your OpenAI API key to continue.", icon="🗝️")
-else:
+try:
+    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+except KeyError:
+    st.error("OPENAI_API_KEY not found in secrets.toml")
+    st.stop()
 
-    # Create an OpenAI client.
-    client = OpenAI(api_key=openai_api_key)
+ # Let the user upload a file via `st.file_uploader`.
+uploaded_file = st.file_uploader(
+    "Upload a document (.txt or .pdf)", type=("txt", "pdf")
+)
+    #Kept getting a AttributeError: 'UploadedFile' object has no attribute 'file'
+    #So we are adding the attribute after uploading for the sake of the new function read_pdf. Copilot
+    #was used to resolve this error.
+if uploaded_file:
+    uploaded_file.file = uploaded_file
+    # Ask the user for a question via `st.text_area`.
 
-    # Create a session state variable to store the chat messages. This ensures that the
-    # messages persist across reruns.
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+    #This is the read_pdf function to be used late:
+    #here, we are first creating the pdf reader, using a pdfreader object
+    #once given access to metadata and pages, we create an empty list where 
+    #we will store the text extracted from each page
+    #then, we loop through every page and extract text from a page
+    #and, checking if text exists, we prevent appending or empty string (if a page is empty, we skip)
+    #furthermore, we store the page text and continue to combine everything into one string, returned, and assigned
+    #to uploaded_file variable
+def read_pdf(uploaded_file):
+    reader = PdfReader(uploaded_file)
+    pages_text = []
 
-    # Display the existing chat messages via `st.chat_message`.
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+    for page in reader.pages:
+        text = page.extract_text()
+        if text:
+            pages_text.append(text)
 
-    # Create a chat input field to allow the user to enter a message. This will display
-    # automatically at the bottom of the page.
-    if prompt := st.chat_input("What is up?"):
+    return "\n".join(pages_text)  
 
-        # Store and display the current prompt.
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
+# Here we get to the sidebar, which pops up as soon as you click on the second tab
+st.sidebar.header("Summary Options")
 
-        # Generate a response using the OpenAI API.
-        stream = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": m["role"], "content": m["content"]}
-                for m in st.session_state.messages
-            ],
-            stream=True,
+summary_type = st.selectbox(
+    "Choose summary format:",
+    (
+        "100 Words",
+        "2 Paragraphs",
+        "5 Bullet Points"
+    )
+)
+advanced_model = st.checkbox("Use advanced model (gpt-5)")
+if uploaded_file:
+    file_extension = uploaded_file.file.name.split('.')[-1]
+    if file_extension == 'txt':
+        # Process the uploaded file and question.
+        document = uploaded_file.read().decode()
+    elif file_extension == 'pdf':
+        document = read_pdf(uploaded_file)
+    else:
+        st.error("Unsupported file type.")
+    #And starting here, we are pre-prompting the model for each selection chosen by the user
+    if summary_type == "100 Words":
+        prompt = (
+        "Summarize the following document in approximately 100 words."
+    )
+
+    elif summary_type == "2 Paragraphs":
+        prompt = (
+            "Summarize the following document in exactly 2 connected paragraphs."
         )
 
-        # Stream the response to the chat using `st.write_stream`, then store it in 
-        # session state.
-        with st.chat_message("assistant"):
-            response = st.write_stream(stream)
-        st.session_state.messages.append({"role": "assistant", "content": response})
+    else:  
+        prompt = (
+        "Summarize the following document in exactly 5 concise bullet points."
+        )
+    messages = [
+    {
+        "role": "user",
+        "content": f"""
+        {prompt}
+
+        DOCUMENT:
+        {document}
+        """
+    }
+    ]
+        # Generate an answer using the OpenAI API.
+    stream = client.chat.completions.create(
+        model="gpt-4.1-nano" if advanced_model else "gpt-5", 
+        messages=messages,
+        stream=True,
+    )
+    st.write_stream(stream)
+
+
+
+
+
+
+        
+        # Stream the response to the app using `st.write_stream`.
