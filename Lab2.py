@@ -24,7 +24,7 @@ def read_url_content(url):
         response = requests.get(url)
         response.raise_for_status()  #Raise an exception for HTTP errors
         soup = BeautifulSoup(response.content, 'html.parser')
-        return = soup.get_text()
+        return soup.get_text()
     except requests.RequestException as e:
         print(f"Error reading (url): {e}")
         return None
