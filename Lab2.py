@@ -2,6 +2,8 @@ import streamlit as st
 from openai import OpenAI
 import pypdf 
 from pypdf import PdfReader
+import requests
+from bs4 import BeautifulSoup
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
@@ -11,6 +13,21 @@ st.write(
     "This is a simple chatbot that uses a OpenAI model to summarize any document. " 
         "Simply upload a file and select the summary type of your choice from the drop down menu to begin."
 )
+
+url = st.text_input(
+    "Enter a URL to summarize:",
+    placeholder="https://example.com"
+)
+
+def read_url_content(url):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  #Raise an exception for HTTP errors
+        soup = BeautifulSoup(response.content, 'html.parser')
+        return = soup.get_text()
+    except requests.RequestException as e:
+        print(f"Error reading (url): {e}")
+        return None
 
 # Ask user for their OpenAI API key via `st.text_input`.
 # Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
@@ -63,7 +80,9 @@ summary_type = st.selectbox(
     )
 )
 advanced_model = st.checkbox("Use advanced model (gpt-5)")
-if uploaded_file:
+if url:
+    document = read_url_content(url)
+elif uploaded_file:
     file_extension = uploaded_file.file.name.split('.')[-1]
     if file_extension == 'txt':
         # Process the uploaded file and question.
