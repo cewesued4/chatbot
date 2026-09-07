@@ -167,9 +167,9 @@ if document:
             if advanced_model
             else "gemini-3.7-flash" #Copilot was used to see how to use the same advanced model button for both LLMs selected
             )
-    gemini_model = genai.GenerativeModel(gemini_model_name)
-    response = gemini_model.generate_content(full_prompt)
-    st.write(response.text) 
+        gemini_model = genai.GenerativeModel(gemini_model_name)
+        response = gemini_model.generate_content(full_prompt)
+        st.write(response.text) 
 
 
 
