@@ -11,7 +11,7 @@ client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 st.title("💬 Chatbot")
 st.write(
     "This is a simple chatbot that uses a OpenAI model to summarize any document. " 
-        "Simply upload a file and select the summary type of your choice from the drop down menu to begin."
+        "Simply upload or search a file and select the summary type of your choice from the drop down menu to begin."
 )
 
 url = st.text_input(
@@ -92,38 +92,39 @@ elif uploaded_file:
     else:
         st.error("Unsupported file type.")
     #And starting here, we are pre-prompting the model for each selection chosen by the user
-    if summary_type == "100 Words":
-        prompt = (
-        "Summarize the following document in approximately 100 words."
-    )
-
-    elif summary_type == "2 Paragraphs":
-        prompt = (
-            "Summarize the following document in exactly 2 connected paragraphs."
+    if document: 
+        if summary_type == "100 Words":
+            prompt = (
+            "Summarize the following document in approximately 100 words."
         )
 
-    else:  
-        prompt = (
-        "Summarize the following document in exactly 5 concise bullet points."
-        )
-    messages = [
-    {
-        "role": "user",
-        "content": f"""
-        {prompt}
+        elif summary_type == "2 Paragraphs":
+            prompt = (
+                "Summarize the following document in exactly 2 connected paragraphs."
+            )
 
-        DOCUMENT:
-        {document}
-        """
-    }
-    ]
+        else:  
+            prompt = (
+            "Summarize the following document in exactly 5 concise bullet points."
+            )
+        messages = [
+        {
+            "role": "user",
+            "content": f"""
+            {prompt}
+
+            DOCUMENT:
+            {document}
+            """
+        }
+        ]
         # Generate an answer using the OpenAI API.
-    stream = client.chat.completions.create(
-        model="gpt-4.1-nano" if advanced_model else "gpt-5", 
-        messages=messages,
-        stream=True,
-    )
-    st.write_stream(stream)
+        stream = client.chat.completions.create(
+            model="gpt-4.1-nano" if advanced_model else "gpt-5", 
+            messages=messages,
+            stream=True,
+        )
+        st.write_stream(stream)
 
 
 
