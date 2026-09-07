@@ -4,14 +4,14 @@ import pypdf
 from pypdf import PdfReader
 import requests
 from bs4 import BeautifulSoup
-import google.generativeai as genai
+import google.generativeai as genai #had to look this import up
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-genai.configure(api_key = st.secrets["google_api_key"])
+genai.configure(api_key = st.secrets["google_api_key"]) #was not sure how to integrate a second key. had to look this up as well
 # Show title and description.
 st.title("💬 Chatbot")
 st.write(
-    "This is a simple chatbot that uses a OpenAI model to summarize any document. " 
+    "This is a simple chatbot that uses OpenAI and Gemini models to summarize any document. " 
         "Simply upload or search a file and select the summary type, as well as language, of your choice from the drop down menu to begin."
 )
 
