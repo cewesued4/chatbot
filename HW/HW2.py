@@ -4,6 +4,7 @@ import pypdf
 from pypdf import PdfReader
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+genai.configure(api_key =st.secrets[""])
 
 # Show title and description.
 st.title("💬 Chatbot")

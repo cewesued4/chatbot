@@ -4,14 +4,15 @@ import pypdf
 from pypdf import PdfReader
 import requests
 from bs4 import BeautifulSoup
+import google.generativeai as genai
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-
+genai.configure(api_key = st.secrets["google_api_key"])
 # Show title and description.
 st.title("💬 Chatbot")
 st.write(
     "This is a simple chatbot that uses a OpenAI model to summarize any document. " 
-        "Simply upload or search a file and select the summary type of your choice from the drop down menu to begin."
+        "Simply upload or search a file and select the summary type, as well as language, of your choice from the drop down menu to begin."
 )
 
 url = st.text_input(
@@ -71,7 +72,7 @@ def read_pdf(uploaded_file):
 # Here we get to the sidebar, which pops up as soon as you click on the second tab
 st.sidebar.header("Summary Options")
 
-summary_type = st.selectbox(
+summary_type = st.sidebar.selectbox(
     "Choose summary format:",
     (
         "100 Words",
@@ -79,19 +80,34 @@ summary_type = st.selectbox(
         "5 Bullet Points"
     )
 )
+output_language = st.sidebar.selectbox(
+    "Choose language:",
+    (
+        "English",
+        "French",
+        "Spanish"
+    )
+)
+
+llm_choice = st.sidebar.selectbox(
+    "Choose LLM:",
+    (
+        "OpenAI",
+        "Gemini"
+    )
+)
 advanced_model = st.checkbox("Use advanced model (gpt-5)")
 
 document = None
 if url:
     st.write("URL entered:", url)
-
     document = read_url_content(url)
 
-    st.write("Document is None:", document is None)
+    #st.write("Document is None:", document is None)
 
-    if document:
-        st.write("Characters extracted:", len(document))
-        st.write(document[:500])
+    #if document:
+        #st.write("Characters extracted:", len(document))
+        #st.write(document[:500])
 elif uploaded_file:
     file_extension = uploaded_file.file.name.split('.')[-1]
     if file_extension == 'txt':
@@ -106,16 +122,19 @@ if document:
     if summary_type == "100 Words":
         prompt = (
         "Summarize the following document in approximately 100 words."
+        + f"Provide the summary in {output_language}."
     )
 
     elif summary_type == "2 Paragraphs":
         prompt = (
             "Summarize the following document in exactly 2 connected paragraphs."
+            + f"Provide the summary in {output_language}."
         )
 
     else:  
         prompt = (
         "Summarize the following document in exactly 5 concise bullet points."
+        + f"Provide the summary in {output_language}."
         )
     messages = [
     {
@@ -129,12 +148,16 @@ if document:
     }
     ]
     # Generate an answer using the OpenAI API.
-    stream = client.chat.completions.create(
-        model="gpt-4.1-nano" if advanced_model else "gpt-5", 
-        messages=messages,
-        stream=True,
-    )
-    st.write_stream(stream)
+    if llm_choice == "OpenAI":
+        stream = client.chat.completions.create(
+            model="gpt-4.1-nano" if advanced_model else "gpt-5", 
+            messages=messages,
+            stream=True,
+        )
+        st.write_stream(stream)
+    else:
+        gemini_model = 
+
 
 
 
