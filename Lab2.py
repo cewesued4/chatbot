@@ -101,7 +101,7 @@ advanced_model = st.checkbox("Use advanced model")
 document = None
 if url:
     st.write("URL entered:", url)
-    document = read_url_content(url)
+    document = read_url_content(url) #the following line and comments were to resolve an error and confirm the url was being pushed through
 
     #st.write("Document is None:", document is None)
 
