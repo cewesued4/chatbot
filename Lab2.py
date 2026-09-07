@@ -96,7 +96,7 @@ llm_choice = st.sidebar.selectbox(
         "Gemini"
     )
 )
-advanced_model = st.checkbox("Use advanced model (gpt-5)")
+advanced_model = st.checkbox("Use advanced model")
 
 document = None
 if url:
@@ -147,6 +147,12 @@ if document:
         """
     }
     ]
+    full_prompt = f"""
+    {prompt}
+
+    DOCUMENT:
+    {document}
+    """
     # Generate an answer using the OpenAI API.
     if llm_choice == "OpenAI":
         stream = client.chat.completions.create(
@@ -156,7 +162,14 @@ if document:
         )
         st.write_stream(stream)
     else:
-        gemini_model = 
+        gemini_model_name = (
+            "gemini-3.6-flash"
+            if advanced_model
+            else "gemini-3.7-flash" #Copilot was used to see how to use the same advanced model button for both LLMs selected
+            )
+    gemini_model = genai.GenerativeModel(gemini_model_name)
+    response = gemini_model.generate_content(full_prompt)
+    st.write(response.text) 
 
 
 
