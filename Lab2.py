@@ -8,6 +8,8 @@ import google.generativeai as genai #had to look this import up
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 genai.configure(api_key = st.secrets["google_api_key"]) #was not sure how to integrate a second key. had to look this up as well
+#this configures the Gemini SDK globally with the Open AI API key
+#the Gemini SDK stores the API key inside of the genai module
 # Show title and description.
 st.title("💬 Chatbot")
 st.write(
@@ -161,7 +163,7 @@ if document:
             stream=True,
         )
         st.write_stream(stream)
-    else:
+    else:  #here the Gemini SDK (software development kit) automatically uses the key supplied earlier because of "configure" command
         gemini_model_name = (
             "gemini-3.6-flash"
             if advanced_model
@@ -169,7 +171,7 @@ if document:
             )
         gemini_model = genai.GenerativeModel(gemini_model_name)
         response = gemini_model.generate_content(full_prompt)
-        st.write(response.text) 
+        st.write(response.text)
 
 
 
