@@ -58,12 +58,15 @@ if prompt := st.chat_input("What is up?"):
     client = st.session_state.client
     stream = client.chat.completions.create(
         model = model_to_use,
-        messages = [{"role": "system", "content": "You are a helpful assistant. After answering, ask if the user would like information. "
+        messages = [{"role": "system", "content": "You are a helpful assistant. After answering, ask if the user would like information. If the user says yes, then answer by giving more information. "
         "If the user says no, go back to asking what you can help with. Give answers such that someone who is 10 years old can understand. "}]+st.session_state.messages,
         stream = True
     )
     with st.chat_message("assistant"):
         response = st.write_stream(stream)
+    st.session_state.messages.append(
+        {"role": "assistant", "content": response})
+    
 #with st.chat_message("assistant"):
     #st.write("Hello human. Say something.")
 
