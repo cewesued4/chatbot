@@ -39,6 +39,18 @@ for msg in st.session_state.messages:
     chat_msg = st.chat_message(msg["role"])
     chat_msg.write(msg["content"])
 
+completion = client.chat.completions.create(
+    model = "gpt-3.5-turbo",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user","content": "message 1 content. "},
+        {"role":"assistant","content":"message 2 content."},
+        {"role": "user","content":"message 3 content"},
+        {"role": "assistant","content": "message 4 content."},
+        {"role": "user","content":"message 5 content."}
+    ],
+
+)
 if prompt := st.chat_input("What is up?"):
     st.session_state.messages.append({"role":"user","content": prompt})
     with st.chat_message("user"):
@@ -46,7 +58,8 @@ if prompt := st.chat_input("What is up?"):
     client = st.session_state.client
     stream = client.chat.completions.create(
         model = model_to_use,
-        messages = st.session_state.messages,
+        messages = [{"role": "system", "content": "You are a helpful assistant. After answering, ask if the user would like information. "
+        "If the user says no, go back to asking what you can help with. Give answers such that someone who is 10 years old can understand. "}]+st.session_state.messages,
         stream = True
     )
     with st.chat_message("assistant"):
@@ -71,36 +84,10 @@ except KeyError:
     st.error("OPENAI_API_KEY not found in secrets.toml")
     st.stop()
 
- # Let the user upload a file via `st.file_uploader`.
 
-    #Kept getting a AttributeError: 'UploadedFile' object has no attribute 'file'
-    #So we are adding the attribute after uploading for the sake of the new function read_pdf. Copilot
-    #was used to resolve this error.
-
-    # Ask the user for a question via `st.text_area`.
-
-    #This is the read_pdf function to be used late:
-    #here, we are first creating the pdf reader, using a pdfreader object
-    #once given access to metadata and pages, we create an empty list where 
-    #we will store the text extracted from each page
-    #then, we loop through every page and extract text from a page
-    #and, checking if text exists, we prevent appending or empty string (if a page is empty, we skip)
-    #furthermore, we store the page text and continue to combine everything into one string, returned, and assigned
-    #to uploaded_file variable
 
 # Here we get to the sidebar, which pops up as soon as you click on the second tab
-completion = client.chat.completions.create(
-    model = "gpt-3.5-turbo",
-    messages=[
-        {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user","content": "message 1 content. "},
-        {"role":"assistant","content":"message 2 content"},
-        {"role": "user","content":"message 3 content"},
-        {"role": "assistant","content": "message 4 content."},
-        {"role": "user","content":"message 5 content."}
-    ],
 
-)
    
     # Generate an answer using the OpenAI API.
   
