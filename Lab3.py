@@ -17,8 +17,11 @@ st.write(
     "This is a simple chatbot that uses OpenAI."
 )
 
-openAI_model = st.sidebar.selectbox["Which Model?",
-                                    ("turbo","regular")]
+openAI_model = st.sidebar.selectbox(
+    "Which Model?",
+    ("turbo","regular")
+)
+
 if openAI_model == "turbo":
     model_to_use = "gpt-3.5-turbo"
 else:
@@ -36,13 +39,24 @@ for msg in st.session_state.messages:
     chat_msg = st.chat_message(msg["role"])
     chat_msg.write(msg["content"])
 
+if prompt := st.chat_input("What is up?"):
+    st.session_state.messages.append({"role":"user","content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+    client = st.session_state.client
+    stream = client.chat.completions.create(
+        model = model_to_use,
+        messages = st.session_state.messages,
+        stream = True
+    )
+    with st.chat_message("assistant"):
+        response = st.write_stream(stream)
+#with st.chat_message("assistant"):
+    #st.write("Hello human. Say something.")
 
-with st.chat_message("assistant"):
-    st.write("Hello human. Say something.")
-
-prompt = st.chat_input("Say something.")
-if prompt:
-    st.write(f"User has sent the following prompt: {prompt}")
+#prompt = st.chat_input("Say something.")
+#if prompt:
+    #st.write(f"User has sent the following prompt: {prompt}")
 
 
 
@@ -90,7 +104,7 @@ completion = client.chat.completions.create(
    
     # Generate an answer using the OpenAI API.
   
-st.write_stream(stream)
+#st.write_stream(stream)
    
 
 
