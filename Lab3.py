@@ -18,13 +18,31 @@ st.write(
 )
 
 openAI_model = st.sidebar.selectbox["Which Model?",
-    if openAI_model == "gpt-3.5-turbo"]
-with st.chat_message("assistant"):
-    st.write("Hello human. Say something.")
+                                    ("turbo","regular")]
+if openAI_model == "turbo":
+    model_to_use = "gpt-3.5-turbo"
+else:
+    model_to_use = "gpt-3.5"
 
-prompt = st.chat_input("Say something.")
-if prompt:
-    st.write(f"User has sent the following prompt: {prompt}")
+#creating an OpenAI client
+if 'client' not in st.session_state:
+    api_key = st.secrets["OPENAI_API_KEY"]
+    st.session_state.client = OpenAI(api_key=api_key)
+
+if "messages" not in st.session_state:
+    st.session_state["messages"] = [{"role": "assistant","content":"How can I help you?"}]
+
+for msg in st.session_state.messages:
+    chat_msg = st.chat_message(msg["role"])
+    chat_msg.write(msg["content"])
+
+
+#with st.chat_message("assistant"):
+    #st.write("Hello human. Say something.")
+
+#prompt = st.chat_input("Say something.")
+#if prompt:
+    #st.write(f"User has sent the following prompt: {prompt}")
 
 
 
