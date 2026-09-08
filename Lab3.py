@@ -37,12 +37,12 @@ for msg in st.session_state.messages:
     chat_msg.write(msg["content"])
 
 
-#with st.chat_message("assistant"):
-    #st.write("Hello human. Say something.")
+with st.chat_message("assistant"):
+    st.write("Hello human. Say something.")
 
-#prompt = st.chat_input("Say something.")
-#if prompt:
-    #st.write(f"User has sent the following prompt: {prompt}")
+prompt = st.chat_input("Say something.")
+if prompt:
+    st.write(f"User has sent the following prompt: {prompt}")
 
 
 
