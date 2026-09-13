@@ -17,30 +17,15 @@ st.write(
     "This is a simple chatbot that uses OpenAI."
 )
 
-def read_url_content(url):
-    try:
-        response = requests.get(url)
-        response.raise_for_status()  #Raise an exception for HTTP errors
-        soup = BeautifulSoup(response.content, 'html.parser')
-        return soup.get_text()
-    except requests.RequestException as e:
-        print(f"Error reading (url): {e}")
-        return None
-
-
-llm_choice = st.sidebar.selectbox(
-    "Choose LLM:",
-    (
-        "OpenAI",
-        "Gemini"
-    )
+openAI_model = st.sidebar.selectbox(
+    "Which Model?",
+    ("turbo","regular")
 )
 
-if llm_choice =="OpenAI":
-    model_to_use = "gpt-5-nano"
+if openAI_model == "turbo":
+    model_to_use = "gpt-3.5-turbo"
 else:
-    model_to_use = "gemini-3.8-flash"
-
+    model_to_use = "gpt-3.5"
 
 #creating an OpenAI client
 if 'client' not in st.session_state:
