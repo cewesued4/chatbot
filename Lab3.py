@@ -14,7 +14,7 @@ genai.configure(api_key = st.secrets["google_api_key"]) #was not sure how to int
 # Show title and description.
 st.title("💬 Chatbot")
 st.write(
-    "This is a simple chatbot that uses OpenAI."
+    "This is a simple chatbot that uses OpenAI Gemini to answer questions about inputted URLs."
 )
 
 def read_url_content(url):
