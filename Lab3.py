@@ -36,11 +36,27 @@ llm_choice = st.sidebar.selectbox(
     )
 )
 
-if llm_choice =="OpenAI":
+if llm_choice == "OpenAI":
     model_to_use = "gpt-5-nano"
-else:
+elif llm_choice == "Gemini":
     model_to_use = "gemini-3.8-flash"
 
+
+    
+st.sidebar.header("URL imputs")
+url1 = st.sidebar.text_input("URL 1")
+url2 = st.sidebar.text_input("URL 2")
+
+url_content = ""
+if url1:
+    content1 = read_url_content(url1)
+    if content1:
+        url_content += f"\n\nContent from URL 1:\n{content1}"
+
+if url2:
+    content2 = read_url_content(url2)
+    if content2:
+        url_content += f"\n\nContent from URL 2:\n{content1}"
 
 #creating an OpenAI client
 if 'client' not in st.session_state:
@@ -55,21 +71,45 @@ for msg in st.session_state.messages:
     chat_msg.write(msg["content"])
 
 completion = client.chat.completions.create(
-    model = "gpt-3.5-turbo",
+    model = model_to_use,
     messages=[
-        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "system", "content": "You are a helpful assistant. Use the inputted webpage content provided when it is relevant.\n\n"
+         f"{url_content}"},
         {"role": "user","content": "message 1 content. "},
         {"role":"assistant","content":"message 2 content."},
         {"role": "user","content":"message 3 content"},
         {"role": "assistant","content": "message 4 content."},
-        {"role": "user","content":"message 5 content."}
+        {"role": "user","content":"message 5 content."},
+        {"role": "assistant","content": "message 6 content."}
     ],
 
 )
+
 if prompt := st.chat_input("What is up?"):
-    st.session_state.messages.append({"role":"user","content": prompt})
+    st.session_state.messages.append(
+        {"role": "user", "content": prompt}
+    )
     with st.chat_message("user"):
-        st.markdown(prompt)
+        st.write(prompt)
+    if model_to_use == "OpenAI":
+        stream = client.chat.completions.create(
+            model="gpt-5-nano",
+            messages=st.session_state.messages,
+            stream=True
+        )
+        with st.chat_message("assistant"):
+            response = st.write_stream(stream)
+    else:
+        gemini_model = genai.GenerativeModel(
+            "gemini-3.8-flash"
+        )
+        response = gemini_model.generate_content(prompt)
+        with st.chat_message("assistant"):
+            st.write(response.text)
+        response = response.text
+    st.session_state.messages.append(
+        {"role": "assistant", "content": response}
+    )
     client = st.session_state.client
     stream = client.chat.completions.create(
         model = model_to_use,
