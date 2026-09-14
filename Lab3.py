@@ -56,7 +56,7 @@ if url1:
 if url2:
     content2 = read_url_content(url2)
     if content2:
-        url_content += f"\n\nContent from URL 2:\n{content1}"
+        url_content += f"\n\nContent from URL 2:\n{content2}"
 
 #creating an OpenAI client
 if 'client' not in st.session_state:
