@@ -70,20 +70,20 @@ for msg in st.session_state.messages:
     chat_msg = st.chat_message(msg["role"])
     chat_msg.write(msg["content"])
 
-completion = client.chat.completions.create(
-    model = model_to_use,
-    messages=[
-        {"role": "system", "content": "You are a helpful assistant. Use the inputted webpage content provided when it is relevant.\n\n"
-         f"{url_content}"},
-        {"role": "user","content": "message 1 content. "},
-        {"role":"assistant","content":"message 2 content."},
-        {"role": "user","content":"message 3 content"},
-        {"role": "assistant","content": "message 4 content."},
-        {"role": "user","content":"message 5 content."},
-        {"role": "assistant","content": "message 6 content."}
-    ],
+#completion = client.chat.completions.create(
+    #model = model_to_use,
+    #messages=[
+        #{"role": "system", "content": "You are a helpful assistant. Use the inputted webpage content provided when it is relevant.\n\n"
+        # f"{url_content}"},
+        #{"role": "user","content": "message 1 content. "},
+        #{"role":"assistant","content":"message 2 content."},
+        #{"role": "user","content":"message 3 content"},
+        #{"role": "assistant","content": "message 4 content."},
+        #{"role": "user","content":"message 5 content."},
+        #{"role": "assistant","content": "message 6 content."}
+    #],
 
-)
+#)
 
 if prompt := st.chat_input("What is up?"):
     st.session_state.messages.append(
@@ -91,7 +91,21 @@ if prompt := st.chat_input("What is up?"):
     )
     with st.chat_message("user"):
         st.write(prompt)
+    messages=[
+            {"role": "system", "content": "You are a helpful assistant. After answering, ask if the user would like information. If the user says yes, then answer by giving more information. "
+        "If the user says no, go back to asking what you can help with. Give answers such that someone who is 10 years old can understand. Use the inputted webpage content provided when it is relevant.\n\n"
+             f"{url_content}"},
+            {"role": "user","content": "message 1 content. "},
+            {"role":"assistant","content":"message 2 content."},
+            {"role": "user","content":"message 3 content"},
+            {"role": "assistant","content": "message 4 content."},
+            {"role": "user","content":"message 5 content."},
+            {"role": "assistant","content": "message 6 content."}
+        ]
     if model_to_use == "OpenAI":
+        all_messages = (
+            messages + st.session_state.messages
+        )
         stream = client.chat.completions.create(
             model="gpt-5-nano",
             messages=st.session_state.messages,
@@ -103,24 +117,38 @@ if prompt := st.chat_input("What is up?"):
         gemini_model = genai.GenerativeModel(
             "gemini-3.8-flash"
         )
+        prompt = ""
+
+        for msg in messages:
+            prompt += (
+                f"{msg['role']}:"
+                f"{msg['content']}\n"
+            )
+        for msg in st.session_state.messages:
+            prompt += (
+                f"{msg['role']}:"
+                f"{msg['content']}\n"
+            )
         response = gemini_model.generate_content(prompt)
-        with st.chat_message("assistant"):
-            st.write(response.text)
         response = response.text
+        with st.chat_message("assistant"):
+            st.write(response)
+        
     st.session_state.messages.append(
         {"role": "assistant", "content": response}
     )
-    client = st.session_state.client
-    stream = client.chat.completions.create(
-        model = model_to_use,
-        messages = [{"role": "system", "content": "You are a helpful assistant. After answering, ask if the user would like information. If the user says yes, then answer by giving more information. "
-        "If the user says no, go back to asking what you can help with. Give answers such that someone who is 10 years old can understand. "}]+st.session_state.messages,
-        stream = True
-    )
-    with st.chat_message("assistant"):
-        response = st.write_stream(stream)
-    st.session_state.messages.append(
-        {"role": "assistant", "content": response})
+
+    #client = st.session_state.client
+    #stream = client.chat.completions.create(
+    #    model = model_to_use,
+    #    messages = [{"role": "system", "content": "You are a helpful assistant. After answering, ask if the user would like information. If the user says yes, then answer by giving more information. "
+    #    "If the user says no, go back to asking what you can help with. Give answers such that someone who is 10 years old can understand. "}]+st.session_state.messages,
+    #    stream = True
+    #)
+    #with st.chat_message("assistant"):
+    #    response = st.write_stream(stream)
+    #st.session_state.messages.append(
+    #    {"role": "assistant", "content": response})
     
 #with st.chat_message("assistant"):
     #st.write("Hello human. Say something.")
