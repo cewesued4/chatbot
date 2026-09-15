@@ -20,7 +20,7 @@ from pathlib import Path
 
 # Create ChromaDB client
 chroma_client = chromadb.PersistentClient(path='./ChromaDB_for_Lab')
-collection = chroma_client.get_or_create_collection['Lab4Collection']
+collection = chroma_client.get_or_create_collection(name=Lab4Collection)
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 #genai.configure(api_key = st.secrets["google_api_key"]) #was not sure how to integrate a second key. had to look this up as well
