@@ -15,8 +15,8 @@ import sys
 from pathlib import Path
 
 #A fix for working with ChromaDB on Streamlit Community Cloud
-_import_('pysqlite')
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+#_import_('pysqlite')
+#sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 # Create ChromaDB client
 chroma_client = chromadb.PersistentClient(path='./ChromaDB_for_Lab')
