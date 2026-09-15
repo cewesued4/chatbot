@@ -22,7 +22,29 @@ from pathlib import Path
 chroma_client = chromadb.PersistentClient(path='./ChromaDB_for_Lab')
 collection = chroma_client.get_or_create_collection(name='Lab4Collection')
 
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+if 'openai_client' not in st.session_state:
+    st.session_state.openai_client = OpenAI(api_key=st.secrets.OPENAI_API_KEY)
+
+#A function that will add documents to collection
+#a collection = ChromaDB collection, already established
+#text = extracted text from PDF files
+#Embeddings inserted into the collection from OpenAI
+def add_to_collection(collection, text, file_name):
+    client = st.session_state.openai_client
+    response = client.embeddings.create(
+        input=text,
+        model='text-embedding-3-small'
+    )
+    #Get the embedding
+    embedding = response.data[0].embedding
+
+    #Add embedding and document to ChromaDB
+    collection.add(
+        documents=[text],
+        ids=file_name,
+        embeddings=[embedding]
+    )
+#client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 #genai.configure(api_key = st.secrets["google_api_key"]) #was not sure how to integrate a second key. had to look this up as well
 #this configures the Gemini SDK globally with the Open AI API key
 #the Gemini SDK stores the API key inside of the genai module
