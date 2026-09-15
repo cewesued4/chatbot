@@ -1,5 +1,9 @@
 import streamlit as st
 from openai import OpenAI
+import pysqlite3
+import sys
+sys.modules["sqlite3"] = pysqlite3
+import chromadb
 import pypdf 
 from pypdf import PdfReader
 import requests
@@ -7,7 +11,7 @@ from bs4 import BeautifulSoup
 #import google.generativeai as genai #had to look this import up
 import numpy as np
 import sys
-import chromadb
+
 from pathlib import Path
 
 #A fix for working with ChromaDB on Streamlit Community Cloud
@@ -17,6 +21,7 @@ sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 # Create ChromaDB client
 chroma_client = chromadb.PersistentClient(path='./ChromaDB_for_Lab')
 collection = chroma_client.get_or_create_collection['Lab4Collection']
+
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 #genai.configure(api_key = st.secrets["google_api_key"]) #was not sure how to integrate a second key. had to look this up as well
 #this configures the Gemini SDK globally with the Open AI API key

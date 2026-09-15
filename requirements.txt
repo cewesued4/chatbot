@@ -5,3 +5,4 @@ bs4
 google.generativeai
 pysqlite3-binary
 protobuf==3.20
+chromadb
