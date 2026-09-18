@@ -19,12 +19,24 @@ from pathlib import Path
 #sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 # Create ChromaDB client
-chroma_client = chromadb.PersistentClient(path='./ChromaDB_for_Lab')
-collection = chroma_client.get_or_create_collection(name='Lab4Collection')
+#chroma_client = chromadb.PersistentClient(path='./ChromaDB_for_Lab')
+#collection = chroma_client.get_or_create_collection(name='Lab4Collection')
 
 if 'openai_client' not in st.session_state:
     st.session_state.openai_client = OpenAI(api_key=st.secrets.OPENAI_API_KEY)
 
+#Extract text from PDF
+#This function extracts text from each syllabus
+#to pass to add_to_collection
+def extract_text_from_pdf(pdf_path):
+    reader = PdfReader(pdf_path)
+    text = ""
+    for page in reader.pages:
+        page_text = page.extract_text()
+        if page_text:
+            text+=page_text + "\n"
+    return text
+        
 #A function that will add documents to collection
 #a collection = ChromaDB collection, already established
 #text = extracted text from PDF files
@@ -42,27 +54,85 @@ def add_to_collection(collection, text, file_name):
     collection.add(
         documents=[text],
         ids=file_name,
-        embeddings=[embedding]
+        embeddings=[embedding],
+        metadatas = [
+            {
+                "source":file_name,
+                "document_type":"pdf"
+            }
+        ]
     )
+
+
+
+#Populate collection with pdfs
+#this function uses extract_text_from pdf
+#and add_to_collection to put syllabi in ChromaDB collection
+def load_pdfs_to_collection(folder_path, collection):
+    folder = Path(folder_path)
+    pdf_files = folder.glob("*.pdf")
+    count = 0
+    for pdf_file in pdf_files:
+        text = extract_text_from_pdf(pdf_file)
+        if text.strip():
+            add_to_collection(
+                collection,
+                text,
+                pdf_file.name
+            )
+            count += 1
+    return count
+
+#Check if collection is empty and load PDFs
+if collection.count() ==0:
+    loaded = load_pdfs_to_collection('./Lab-04-Data/',collection)
 #client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 #genai.configure(api_key = st.secrets["google_api_key"]) #was not sure how to integrate a second key. had to look this up as well
 #this configures the Gemini SDK globally with the Open AI API key
 #the Gemini SDK stores the API key inside of the genai module
 # Show title and description.
-st.title("💬 Chatbot")
+st.title("Lab 4: Chatbot using RAG")
+
+#Querying a collection - only used for testing
 st.write(
     "This is a simple chatbot that uses OpenAI."
 )
 
-openAI_model = st.sidebar.selectbox(
-    "Which Model?",
-    ("turbo","regular")
-)
+topic = st.sidebar.text_input('Topic', placeholder = 'Type your topic (e.g., GenAI)...')
 
-if openAI_model == "turbo":
-    model_to_use = "gpt-3.5-turbo"
+if topic:
+    client = st.session_state.openai_client
+    response = client.embeddings.create(
+        input=topic,
+        model='text-embedding-3-small')
+
+    #Get the embedding
+    query_bedding = response.data[0].embedding
+    #Get the text related to this question (this prompt)
+    results = collection.query(
+        query_embeddings = [query_embedding],
+        n_results=3 #The number of closest documents to return
+    )
+
+    #Display the results
+    st.subheader(f'Results for: {topic}')
+
+    for i in range(len(results['documents'][0])):
+        doc = results['documents'][0][i]
+        doc_id = results['ids'][0][i]
+
+        st.write(f'**{i+1}. {doc_id}**')
 else:
-    model_to_use = "gpt-3.5"
+    st.info('Enter a topic in the sidebar to search the collection')
+#openAI_model = st.sidebar.selectbox(
+#    "Which Model?",
+#    ("turbo","regular")
+#)
+
+#if openAI_model == "turbo":
+#    model_to_use = "gpt-3.5-turbo"
+#else:
+#    model_to_use = "gpt-3.5"
 
 #creating an OpenAI client
 if 'client' not in st.session_state:
