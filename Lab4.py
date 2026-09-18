@@ -19,8 +19,8 @@ from pathlib import Path
 #sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 # Create ChromaDB client
-#chroma_client = chromadb.PersistentClient(path='./ChromaDB_for_Lab')
-#collection = chroma_client.get_or_create_collection(name='Lab4Collection')
+chroma_client = chromadb.PersistentClient(path='./ChromaDB_for_Lab')
+collection = chroma_client.get_or_create_collection(name='Lab4Collection')
 
 if 'openai_client' not in st.session_state:
     st.session_state.openai_client = OpenAI(api_key=st.secrets.OPENAI_API_KEY)
@@ -107,7 +107,7 @@ if topic:
         model='text-embedding-3-small')
 
     #Get the embedding
-    query_bedding = response.data[0].embedding
+    query_embedding = response.data[0].embedding
     #Get the text related to this question (this prompt)
     results = collection.query(
         query_embeddings = [query_embedding],
