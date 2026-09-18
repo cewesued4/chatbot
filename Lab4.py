@@ -13,7 +13,15 @@ import numpy as np
 import sys
 
 from pathlib import Path
+import zipfile
 
+zip_path = "Lab-04-Data.zip"
+extract_path = "Lab-04-Data"
+
+if not Path(extract_path).exists():
+
+    with zipfile.ZipFile(zip_path, "r") as zip_ref:
+        zip_ref.extractall(extract_path)
 #A fix for working with ChromaDB on Streamlit Community Cloud
 #_import_('pysqlite')
 #sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
@@ -29,13 +37,18 @@ if 'openai_client' not in st.session_state:
 #This function extracts text from each syllabus
 #to pass to add_to_collection
 def extract_text_from_pdf(pdf_path):
-    reader = PdfReader(pdf_path)
-    text = ""
-    for page in reader.pages:
-        page_text = page.extract_text()
-        if page_text:
-            text+=page_text + "\n"
-    return text
+    try:
+        reader = PdfReader(pdf_path)
+        text = ""
+        for page in reader.pages:
+            page_text = page.extract_text()
+            if page_text:
+                text += page_text + "\n"
+
+        return text
+    except Exception as e:
+        st.error(f"Error reading {pdf_path}: {e}")
+        return ""
         
 #A function that will add documents to collection
 #a collection = ChromaDB collection, already established
@@ -53,7 +66,7 @@ def add_to_collection(collection, text, file_name):
     #Add embedding and document to ChromaDB
     collection.add(
         documents=[text],
-        ids=file_name,
+        ids=[file_name],
         embeddings=[embedding],
         metadatas = [
             {
@@ -70,19 +83,34 @@ def add_to_collection(collection, text, file_name):
 #and add_to_collection to put syllabi in ChromaDB collection
 def load_pdfs_to_collection(folder_path, collection):
     folder = Path(folder_path)
-    pdf_files = folder.glob("*.pdf")
+    st.write("Contents of folder:*", list(folder.iterdir()))
+    st.write("Folder exists:", folder.exists())
+
+    st.write("Folder contents:")
+    st.write(list(folder.iterdir()))
+    pdf_files = list(folder.rglob("*.pdf"))
+
+    st.write("PDF files*found:")
+    st.write(pdf_files)
     count = 0
     for pdf_file in pdf_files:
+        st.write("Processing:", pdf_file)
         text = extract_text_from_pdf(pdf_file)
+        st.write("Characters extracted:", len(text))
         if text.strip():
+            st.write("Adding:", pdf_file.name)
             add_to_collection(
                 collection,
                 text,
                 pdf_file.name
             )
             count += 1
+    st.write("Loaded count:", count)
     return count
 
+loaded = load_pdfs_to_collection('./Lab-04-Data/', collection)
+st.write("Loaded:", loaded)
+st.write("Collection count after loading:", collection.count())
 #Check if collection is empty and load PDFs
 if collection.count() ==0:
     loaded = load_pdfs_to_collection('./Lab-04-Data/',collection)
@@ -92,7 +120,7 @@ if collection.count() ==0:
 #the Gemini SDK stores the API key inside of the genai module
 # Show title and description.
 st.title("Lab 4: Chatbot using RAG")
-
+st.write("Collection count:", collection.count())
 #Querying a collection - only used for testing
 st.write(
     "This is a simple chatbot that uses OpenAI."
@@ -111,8 +139,10 @@ if topic:
     #Get the text related to this question (this prompt)
     results = collection.query(
         query_embeddings = [query_embedding],
-        n_results=3 #The number of closest documents to return
+        n_results=3, #The number of closest documents to return
+        
     )
+    st.write(results)
 
     #Display the results
     st.subheader(f'Results for: {topic}')
@@ -124,15 +154,15 @@ if topic:
         st.write(f'**{i+1}. {doc_id}**')
 else:
     st.info('Enter a topic in the sidebar to search the collection')
-#openAI_model = st.sidebar.selectbox(
-#    "Which Model?",
-#    ("turbo","regular")
-#)
+openAI_model = st.sidebar.selectbox(
+    "Which Model?",
+    ("turbo","regular")
+)
 
-#if openAI_model == "turbo":
-#    model_to_use = "gpt-3.5-turbo"
-#else:
-#    model_to_use = "gpt-3.5"
+if openAI_model == "turbo":
+    model_to_use = "gpt-3.5-turbo"
+else:
+    model_to_use = "gpt-3.5"
 
 #creating an OpenAI client
 if 'client' not in st.session_state:
