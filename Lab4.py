@@ -146,6 +146,7 @@ for msg in st.session_state.messages:
     chat_msg = st.chat_message(msg["role"])
     chat_msg.write(msg["content"])
 
+client = st.session_state.client
 completion = client.chat.completions.create(
     model = "gpt-3.5-turbo",
     messages=[
