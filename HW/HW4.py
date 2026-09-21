@@ -89,7 +89,7 @@ def add_to_collection(collection, text, file_name):
 
         #Add embedding and document to ChromaDB
         collection.add(
-            documents=[chunks],
+            documents=[chunk],
             ids=[f"{file_name}_part_{i+1}"],
             embeddings=[embedding],
             metadatas = [
@@ -109,33 +109,33 @@ def add_to_collection(collection, text, file_name):
 #and add_to_collection to put documents in ChromaDB collection
 def load_html_to_collection(folder_path, collection):
     folder = Path(folder_path)
-    st.write("Contents of folder:*", list(folder.iterdir()))
-    st.write("Folder exists:", folder.exists())
+    #st.write("Contents of folder:*", list(folder.iterdir()))
+    #st.write("Folder exists:", folder.exists())
 
-    st.write("Folder contents:")
-    st.write(list(folder.iterdir()))
+    #st.write("Folder contents:")
+    #st.write(list(folder.iterdir()))
     html_files = list(folder.rglob("*.html"))
 
-    st.write("HTML files*found:")
-    st.write(html_files)
+    #st.write("HTML files*found:")
+    #st.write(html_files)
     count = 0
     for html_file in html_files:
-        st.write("Processing:", html_file)
+        #st.write("Processing:", html_file)
         text = extract_text_from_html(html_file)
-        st.write("Characters extracted:", len(text))
+        #st.write("Characters extracted:", len(text))
         if text.strip():
-            st.write("Adding:", html_file.name)
+            #st.write("Adding:", html_file.name)
             add_to_collection(
                 collection,
                 text,
                 html_file.name
             )
             count += 1
-    st.write("Loaded count:", count)
+    #st.write("Loaded count:", count)
     return count
 
 #loaded = load_html_to_collection('./su_orgs/', collection)
-#st.write("Loaded:", loaded)
+#st.write("Loaded:", loadd)
 #st.write("Collection count after loading:", collection.count())
 #Check if collection is empty and load HTML files
 if collection.count() ==0:
@@ -158,34 +158,33 @@ st.write(
     "This is a simple chatbot that uses OpenAI."
 )
 
-topic = st.sidebar.text_input('Topic', placeholder = 'Type your topic (e.g., GenAI)...')
+#topic = st.sidebar.text_input('Topic', placeholder = 'Type your topic (e.g., GenAI)...')
 
-if topic:
-    client = st.session_state.openai_client
-    response = client.embeddings.create(
-        input=topic,
-        model='text-embedding-3-small')
+#if topic:
+    #client = st.session_state.openai_client
+    #response = client.embeddings.create(
+        #input=topic,
+        #model='text-embedding-3-small')
 
     #Get the embedding
-    query_embedding = response.data[0].embedding
+    #query_embedding = response.data[0].embedding
     #Get the text related to this question (this prompt)
-    results = collection.query(
-        query_embeddings = [query_embedding],
-        n_results=3, #The number of closest documents to return
+    #results = collection.query(
+        #query_embeddings = [query_embedding],
+        #n_results=3, #The number of closest documents to return
         
-    )
-    st.write(results)
+    #)
+    #st.write(results)
 
     #Display the results
-    st.subheader(f'Results for: {topic}')
+    #st.subheader(f'Results for: {topic}')
 
-    for i in range(len(results['documents'][0])):
-        doc = results['documents'][0][i]
-        doc_id = results['ids'][0][i]
+    #for i in range(len(results['documents'][0])):
+        #doc = results['documents'][0][i]
+        #doc_id = results['ids'][0][i]
 
-        st.write(f'**{i+1}. {doc_id}**')
-else:
-    st.info('Enter a topic in the sidebar to search the collection')
+        #else:
+    #st.info('Enter a topic in the sidebar to search the collection')
 openAI_model = st.sidebar.selectbox(
     "Which Model?",
     ("turbo","regular")
@@ -253,8 +252,8 @@ if prompt := st.chat_input("What is up?"):
         results["documents"][0]
     )
     #displaying that the chunks have been retrieved here
-    st.write("Retrieved Context:")
-    st.write(context[:1000])
+    #st.write("Retrieved Context:")
+    #st.write(context[:1000])
 
     #And now we send these chunks over to the LLM
     stream = client.chat.completions.create(
@@ -295,11 +294,11 @@ in the organization documents.
 # Ask user for their OpenAI API key via `st.text_input`.
 # Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
 # via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
-try:
-    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-except KeyError:
-    st.error("OPENAI_API_KEY not found in secrets.toml")
-    st.stop()
+#try:
+    #client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+#except KeyError:
+    #st.error("OPENAI_API_KEY not found in secrets.toml")
+    #st.stop()
 
 
 
