@@ -87,19 +87,20 @@ def add_to_collection(collection, text, file_name):
         #Get the embedding
         embedding = response.data[0].embedding
 
-    #Add embedding and document to ChromaDB
-    collection.add(
-        documents=[chunks],
-        ids=[f"{file_name}_part_{i+1}"],
-        embeddings=[embedding],
-        metadatas = [
-            {
-                "source":file_name,
-                "chunk": i + 1, 
-                "document_type":"html"
-            }
-        ]
-    )
+        #Add embedding and document to ChromaDB
+        collection.add(
+            documents=[chunks],
+            ids=[f"{file_name}_part_{i+1}"],
+            embeddings=[embedding],
+            metadatas = [
+                {
+                    "source":file_name,
+                    "chunk": i + 1, 
+                    "document_type":"html"
+                }
+            ]
+        )
+
 
 
 
@@ -133,12 +134,18 @@ def load_html_to_collection(folder_path, collection):
     st.write("Loaded count:", count)
     return count
 
-loaded = load_html_to_collection('./su_orgs/', collection)
-st.write("Loaded:", loaded)
-st.write("Collection count after loading:", collection.count())
+#loaded = load_html_to_collection('./su_orgs/', collection)
+#st.write("Loaded:", loaded)
+#st.write("Collection count after loading:", collection.count())
 #Check if collection is empty and load HTML files
 if collection.count() ==0:
     loaded = load_html_to_collection('./su_orgs/',collection)
+    st.write("Loaded:", loaded)
+else:
+    st.write(
+        f"Using existing vector database with"
+        f"{collection.count()} chunks."
+    )
 #client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 #genai.configure(api_key = st.secrets["google_api_key"]) #was not sure how to integrate a second key. had to look this up as well
 #this configures the Gemini SDK globally with the Open AI API key
@@ -210,7 +217,14 @@ completion = client.chat.completions.create(
         {"role":"assistant","content":"message 2 content."},
         {"role": "user","content":"message 3 content"},
         {"role": "assistant","content": "message 4 content."},
-        {"role": "user","content":"message 5 content."}
+        {"role": "user","content":"message 5 content."},
+        {"role": "assistant","content": "message 6 content."},
+        {"role": "user","content":"message 7 content."},
+        {"role": "assistant","content": "message 8 content."},
+        {"role": "user","content":"message 9 content."},
+        {"role": "assistant","content": "message 10 content."},
+        {"role": "user","content":"message 11 content."}
+
     ],
 
 )
