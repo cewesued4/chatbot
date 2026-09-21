@@ -27,8 +27,8 @@ if not Path(extract_path).exists():
 #sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 # Create ChromaDB client
-chroma_client = chromadb.PersistentClient(path='./ChromaDB_for_Lab')
-collection = chroma_client.get_or_create_collection(name='SU_Orgs_Collection')
+chroma_client = chromadb.PersistentClient(path='./ChromaDB_for_HW')
+collection = chroma_client.get_or_create_collection(name='SU_Orgs_Collection_v2')
 
 if 'openai_client' not in st.session_state:
     st.session_state.openai_client = OpenAI(api_key=st.secrets.OPENAI_API_KEY)
@@ -80,13 +80,17 @@ def add_to_collection(collection, text, file_name):
 
     chunks = chunk_text(text)
     for i, chunk in enumerate(chunks):
+
+        st.write("TYPE OF CHUNK:", type(chunk))
+        st.write("CHUNK PREVIEW:", str(chunk)[:100])
+        
         response = client.embeddings.create(
             input=chunk,
             model='text-embedding-3-small'
         )
         #Get the embedding
         embedding = response.data[0].embedding
-
+    
         #Add embedding and document to ChromaDB
         collection.add(
             documents=[chunk],
@@ -109,29 +113,29 @@ def add_to_collection(collection, text, file_name):
 #and add_to_collection to put documents in ChromaDB collection
 def load_html_to_collection(folder_path, collection):
     folder = Path(folder_path)
-    #st.write("Contents of folder:*", list(folder.iterdir()))
-    #st.write("Folder exists:", folder.exists())
+    st.write("Contents of folder:*", list(folder.iterdir()))
+    st.write("Folder exists:", folder.exists())
 
-    #st.write("Folder contents:")
-    #st.write(list(folder.iterdir()))
+    st.write("Folder contents:")
+    st.write(list(folder.iterdir()))
     html_files = list(folder.rglob("*.html"))
 
-    #st.write("HTML files*found:")
-    #st.write(html_files)
+    st.write("HTML files*found:")
+    st.write(html_files)
     count = 0
     for html_file in html_files:
-        #st.write("Processing:", html_file)
+        st.write("Processing:", html_file)
         text = extract_text_from_html(html_file)
-        #st.write("Characters extracted:", len(text))
+        st.write("Characters extracted:", len(text))
         if text.strip():
-            #st.write("Adding:", html_file.name)
+            st.write("Adding:", html_file.name)
             add_to_collection(
                 collection,
                 text,
                 html_file.name
             )
             count += 1
-    #st.write("Loaded count:", count)
+    st.write("Loaded count:", count)
     return count
 
 #loaded = load_html_to_collection('./su_orgs/', collection)
