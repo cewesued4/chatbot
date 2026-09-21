@@ -33,87 +33,99 @@ collection = chroma_client.get_or_create_collection(name='Lab4Collection')
 if 'openai_client' not in st.session_state:
     st.session_state.openai_client = OpenAI(api_key=st.secrets.OPENAI_API_KEY)
 
-#Extract text from PDF
-#This function extracts text from each syllabus
+#Extract text from HTML
+#This function extracts text from each html document
 #to pass to add_to_collection
-def extract_text_from_pdf(pdf_path):
-    try:
-        reader = PdfReader(pdf_path)
-        text = ""
-        for page in reader.pages:
-            page_text = page.extract_text()
-            if page_text:
-                text += page_text + "\n"
+#def extract_text_from_html(html_path):
+ #   try:
+ #       with open(html_path, "r", encoding="utf-8") as f:
+ #           html = f.read()
 
-        return text
-    except Exception as e:
-        st.error(f"Error reading {pdf_path}: {e}")
-        return ""
+#        soup = BeautifulSoup(html, "html.parser")
+  #      #removing script/style tags
+    #    for tag in soup(["script", "style"]):
+    #        tag.decompose()
+    #    text = soup.get_text(separator="\n")
+    #    return text
+
+    #except Exception as e:
+    #    st.error(f"Error reading {html_path}: {e}")
+    #    return ""
+        #text = ""
+        #for page in reader.pages:
+           # page_text = page.extract_text()
+            #if page_text:
+                #text += page_text + "\n"
+
+        #return text
+    #except Exception as e:
+        #st.error(f"Error reading {pdf_path}: {e}")
+       # return ""
         
 #A function that will add documents to collection
 #a collection = ChromaDB collection, already established
 #text = extracted text from PDF files
 #Embeddings inserted into the collection from OpenAI
-def add_to_collection(collection, text, file_name):
-    client = st.session_state.openai_client
-    response = client.embeddings.create(
-        input=text,
-        model='text-embedding-3-small'
-    )
+#def add_to_collection(collection, text, file_name):
+    #client = st.session_state.openai_client
+    #response = client.embeddings.create(
+        #input=text,
+        #model='text-embedding-3-small'
+    #)
     #Get the embedding
-    embedding = response.data[0].embedding
+    #embedding = response.data[0].embedding
 
     #Add embedding and document to ChromaDB
-    collection.add(
-        documents=[text],
-        ids=[file_name],
-        embeddings=[embedding],
-        metadatas = [
-            {
-                "source":file_name,
-                "document_type":"pdf"
-            }
-        ]
-    )
+    #collection.add(
+        #documents=[text],
+        #ids=[file_name],
+        #embeddings=[embedding],
+        #metadatas = [
+            #{
+                #"source":file_name,
+                #"document_type":"pdf"
+            #}
+        #]
+    #)
 
 
 
 #Populate collection with pdfs
 #this function uses extract_text_from pdf
 #and add_to_collection to put syllabi in ChromaDB collection
-def load_pdfs_to_collection(folder_path, collection):
-    folder = Path(folder_path)
-    st.write("Contents of folder:*", list(folder.iterdir()))
-    st.write("Folder exists:", folder.exists())
+#def load_pdfs_to_collection(folder_path, collection):
+    #folder = Path(folder_path)
+    #st.write("Contents of folder:*", list(folder.iterdir()))
+    #st.write("Folder exists:", folder.exists())
 
-    st.write("Folder contents:")
-    st.write(list(folder.iterdir()))
-    pdf_files = list(folder.rglob("*.pdf"))
+    #st.write("Folder contents:")
+    #st.write(list(folder.iterdir()))
+    #pdf_files = list(folder.rglob("*.pdf"))
 
-    st.write("PDF files*found:")
-    st.write(pdf_files)
-    count = 0
-    for pdf_file in pdf_files:
-        st.write("Processing:", pdf_file)
-        text = extract_text_from_pdf(pdf_file)
-        st.write("Characters extracted:", len(text))
-        if text.strip():
-            st.write("Adding:", pdf_file.name)
-            add_to_collection(
-                collection,
-                text,
-                pdf_file.name
-            )
-            count += 1
-    st.write("Loaded count:", count)
-    return count
+    #st.write("PDF files*found:")
+    #st.write(pdf_files)
+    #count = 0
+    #for pdf_file in pdf_files:
+        #st.write("Processing:", pdf_file)
+        #text = extract_text_from_pdf(pdf_file)
+        #st.write("Characters extracted:", len(text))
+        #if text.strip():
+            #st.write("Adding:", pdf_file.name)
+            #add_to_collection(
+                #collection,
+                #text,
+                #pdf_file.name
+            #)
+            #count += 1
+    #st.write("Loaded count:", count)
+    #return count
 
-loaded = load_pdfs_to_collection('./Lab-04-Data/', collection)
-st.write("Loaded:", loaded)
-st.write("Collection count after loading:", collection.count())
+#loaded = load_pdfs_to_collection('./Lab-04-Data/', collection)
+#st.write("Loaded:", loaded)
+#st.write("Collection count after loading:", collection.count())
 #Check if collection is empty and load PDFs
-if collection.count() ==0:
-    loaded = load_pdfs_to_collection('./Lab-04-Data/',collection)
+#if collection.count() ==0:
+    #loaded = load_pdfs_to_collection('./Lab-04-Data/',collection)
 #client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 #genai.configure(api_key = st.secrets["google_api_key"]) #was not sure how to integrate a second key. had to look this up as well
 #this configures the Gemini SDK globally with the Open AI API key
