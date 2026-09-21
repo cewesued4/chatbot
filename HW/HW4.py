@@ -229,21 +229,58 @@ completion = client.chat.completions.create(
 
 )
 if prompt := st.chat_input("What is up?"):
-    st.session_state.messages.append({"role":"user","content": prompt})
+    st.session_state.messages.append(
+        {"role": "user", "content": prompt}
+    )
     with st.chat_message("user"):
         st.markdown(prompt)
     client = st.session_state.client
+
+    # creating an embedding for the user prompt to use for searching the vector database
+    embedding_response = client.embeddings.create(
+        input=prompt,
+        model="text-embedding-3-small"
+    )
+    query_embedding = embedding_response.data[0].embedding
+
+    #now we are actually searching the vector database
+    results = collection.query(
+        query_embeddings=[query_embedding],
+        n_results=3
+    )
+    # building context from the chunks provided - used Copilot to reason through this step
+    context = "\n\n".join(
+        results["documents"][0]
+    )
+    #displaying that the chunks have been retrieved here
+    st.write("Retrieved Context:")
+    st.write(context[:1000])
+
+    #And now we send these chunks over to the LLM
     stream = client.chat.completions.create(
-        model = model_to_use,
-        messages = [{"role": "system", "content": "You are a helpful assistant. After answering, ask if the user would like information. If the user says yes, then answer by giving more information. "
-        "If the user says no, go back to asking what you can help with. Give answers such that someone who is 10 years old can understand. "}]+st.session_state.messages,
-        stream = True
+        model=model_to_use,
+        messages=[
+            {
+                "role": "system",
+                "content": f"""
+You are an organizations assistant.
+Use the retrieved context below to answer the user's question.
+Context:
+{context}
+
+If the answer is not found in the context,
+say you could not find that information
+in the organization documents.
+"""
+            }
+        ] + st.session_state.messages,
+        stream=True
     )
     with st.chat_message("assistant"):
         response = st.write_stream(stream)
     st.session_state.messages.append(
-        {"role": "assistant", "content": response})
-    
+        {"role": "assistant", "content": response}
+    )
 #with st.chat_message("assistant"):
     #st.write("Hello human. Say something.")
 
