@@ -22,12 +22,12 @@ def get_current_weather(location):
     url = f"https://wttr.in/{location}?format=j1"
     response = requests.get(url, timeout=10)
     if response.status_code != 200:
-        raise Exception(f'wttr.in error: status(response.status_code)')
+        raise Exception(f'wttr.in error: status{response.status_code}')
     try:
         data = response.json()
     except ValueError:
         #unknown locations come back as plain text, not JSON
-        raise Exception(f'Could not ind a location named {location}')
+        raise Exception(f'Could not find a location named {location}')
     #j1 has three top-level sections:
     # current condition -- one entry, conditions right now
     # weather -- three entries, one per day, each with min/max, astronomy, and hourly forecasts
@@ -36,14 +36,14 @@ def get_current_weather(location):
     current = data['current_condition'][0]
     #two examples; not that some values are nested one level deeper
     return{'location':location,
-           'temperation': float(current['temp_F']),
+           'temperature': float(current['temp_F']),
            'description': current['weatherDesc'][0]['value']}
 
 location = st.text_input("Enter a city, zip code, airport code, or landmark:")
 
 if st.button("Get Weather"):
     try:
-        weather = get_current_weather=(location)
+        weather = get_current_weather(location)
         st.write(f"### Weather for {weather['location']}")
         st.write(f"**Temperature:** {weather['temperature']} F")
         st.write(f"**Conditions:** {weather['description']}")
