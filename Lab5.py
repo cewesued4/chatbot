@@ -4,14 +4,11 @@ import requests
 #note: hard codes units to degrees Fahrenheit
 import streamlit as st
 from openai import OpenAI
-import pypdf 
-from pypdf import PdfReader
-import requests
 from bs4 import BeautifulSoup
-import google.generativeai as genai #had to look this import up
+#import google.generativeai as genai #had to look this import up
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-genai.configure(api_key = st.secrets["google_api_key"]) #was not sure how to integrate a second key. had to look this up as well
+#genai.configure(api_key = st.secrets["google_api_key"]) #was not sure how to integrate a second key. had to look this up as well
 #this configures the Gemini SDK globally with the Open AI API key
 #the Gemini SDK stores the API key inside of the genai module
 # Show title and description.
