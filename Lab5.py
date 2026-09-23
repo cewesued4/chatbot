@@ -1,3 +1,5 @@
+from pyexpat.errors import messages
+
 import requests
 # location can be a city, a zip code, an airpot code ('SYR'),
 # or a landmark('Eiffel+Tower')
@@ -41,16 +43,6 @@ def get_current_weather(location):
            'description': current['weatherDesc'][0]['value']}
 
 location = st.text_input("Enter a city, zip code, airport code, or landmark:")
-
-if st.button("Get Weather"):
-    try:
-        weather = get_current_weather(location)
-        st.write(f"### Weather for {weather['location']}")
-        st.write(f"**Temperature:** {weather['temperature']} F")
-        st.write(f"**Conditions:** {weather['description']}")
-    except Exception as e:
-        st.error(str(e))
-
 tools = [
     {
         "type":"function",
@@ -87,19 +79,22 @@ def chat_completion_request(messages, tools=None, tool_choice=None, model=GPT_MO
         print(f"Exception: {e}")
         return e
 
-messages = [{
-    "role":"user",
-    "content":"What should I where based on the weather today?"
-}]
-response = client.chat.completions.create(
-    model="gpt-3.5-turbo",
-    messages=messages,
-    tools=tools,
-    tool_choice="auto"
-)
 
- #Append the message to messages list
+#Append the message to messages list
 response_message = response.choices[0].message
 messages.append(response_message.to_dict())
+if st.button("Get Weather"):
+    try:
+        weather = get_current_weather(location)
+        st.write(f"### Weather for {weather['location']}")
+        st.write(f"**Temperature:** {weather['temperature']} F")
+        st.write(f"**Conditions:** {weather['description']}")
+
+        prompt = f"Based on the weather in {weather['location']}, {weather['temperature']} F, and {weather['description']}, what should I wear today?"
+        response = chat_completion_request(messages=[{"role": "user", "content": prompt}], tools=tools)
+    except Exception as e:
+        st.error(str(e))
+
+
 
         # Stream the response to the app using `st.write_stream`.
