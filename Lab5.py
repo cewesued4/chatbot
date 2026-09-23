@@ -79,7 +79,13 @@ def chat_completion_request(messages, tools=None, tool_choice=None, model=GPT_MO
         print(f"Exception: {e}")
         return e
 
+response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=messages,
+            tools=tools,
+            tool_choice = "auto",
 
+        )
 #Append the message to messages list
 response_message = response.choices[0].message
 messages.append(response_message.to_dict())
