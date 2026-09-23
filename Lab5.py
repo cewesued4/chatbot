@@ -49,6 +49,34 @@ if st.button("Get Weather"):
         st.write(f"**Conditions:** {weather['description']}")
     except Exception as e:
         st.error(str(e))
+def chat_completion_request(messages, tools=None, tool_choice=None, model=GPT_MODEL):
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            tools=tools,
+            tool_choice = "auto",
 
-        
+        )
+        return response
+    except Exception as e:
+        print("Unable to generate ChatCompletion response")
+        print(f"Exception: {e}")
+        return e
+
+messages = [{
+    "role":"user",
+    "content":"What should I where based on the weather today?"
+}]
+response = client.chat.completions.create(
+    model=GPT_MODEL,
+    messages=messages,
+    tools=tools,
+    tool_choice="auto"
+)
+
+ #Append the message to messages list
+response_mesage = response.choices[0].message
+messages.append(response_message.to_dict())
+
         # Stream the response to the app using `st.write_stream`.
