@@ -5,6 +5,7 @@ import requests
 import streamlit as st
 from openai import OpenAI
 from bs4 import BeautifulSoup
+
 #import google.generativeai as genai #had to look this import up
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
@@ -49,6 +50,28 @@ if st.button("Get Weather"):
         st.write(f"**Conditions:** {weather['description']}")
     except Exception as e:
         st.error(str(e))
+
+tools = [
+    {
+        "type":"function",
+        "function": {
+            "name": "get_current_weather",
+            "description": "Get the current weather for a given location",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "location": {
+                        "type": "string",
+                        "description": "The location for which to get weather information"
+                    }
+                },
+                "required": ["location"]
+            }
+        }
+    }
+]
+
+GPT_MODEL = "gpt-3.5-turbo"
 def chat_completion_request(messages, tools=None, tool_choice=None, model=GPT_MODEL):
     try:
         response = client.chat.completions.create(
@@ -69,14 +92,14 @@ messages = [{
     "content":"What should I where based on the weather today?"
 }]
 response = client.chat.completions.create(
-    model=GPT_MODEL,
+    model="gpt-3.5-turbo",
     messages=messages,
     tools=tools,
     tool_choice="auto"
 )
 
  #Append the message to messages list
-response_mesage = response.choices[0].message
+response_message = response.choices[0].message
 messages.append(response_message.to_dict())
 
         # Stream the response to the app using `st.write_stream`.
