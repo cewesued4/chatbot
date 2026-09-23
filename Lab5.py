@@ -43,27 +43,8 @@ def get_current_weather(location):
            'description': current['weatherDesc'][0]['value']}
 
 location = st.text_input("Enter a city, zip code, airport code, or landmark:")
-tools = [
-    {
-        "type":"function",
-        "function": {
-            "name": "get_current_weather",
-            "description": "Get the current weather for a given location",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "location": {
-                        "type": "string",
-                        "description": "The location for which to get weather information"
-                    }
-                },
-                "required": ["location"]
-            }
-        }
-    }
-]
 
-GPT_MODEL = "gpt-3.5-turbo"
+GPT_MODEL = "gpt-4o-mini"
 def chat_completion_request(messages, tools=None, tool_choice=None, model=GPT_MODEL):
     try:
         response = client.chat.completions.create(
@@ -78,17 +59,7 @@ def chat_completion_request(messages, tools=None, tool_choice=None, model=GPT_MO
         print("Unable to generate ChatCompletion response")
         print(f"Exception: {e}")
         return e
-
-response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=messages,
-            tools=tools,
-            tool_choice = "auto",
-
-        )
-#Append the message to messages list
-response_message = response.choices[0].message
-messages.append(response_message.to_dict())
+    
 if st.button("Get Weather"):
     try:
         weather = get_current_weather(location)
@@ -97,9 +68,12 @@ if st.button("Get Weather"):
         st.write(f"**Conditions:** {weather['description']}")
 
         prompt = f"Based on the weather in {weather['location']}, {weather['temperature']} F, and {weather['description']}, what should I wear today?"
-        response = chat_completion_request(messages=[{"role": "user", "content": prompt}], tools=tools)
+        response = chat_completion_request(messages=[{"role": "user", "content": prompt}])
+        st.write("Clothing Recommendation")
+        st.write(response.choices[0].message.content)
     except Exception as e:
         st.error(str(e))
+
 
 
 
