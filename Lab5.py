@@ -44,24 +44,14 @@ def get_current_weather(location):
 
 location = st.text_input("Enter a city, zip code, airport code, or landmark:")
 
-GPT_MODEL = "gpt-4o-mini"
-def chat_completion_request(messages, tools=None, tool_choice=None, model=GPT_MODEL):
-    try:
-        response = client.chat.completions.create(
-            model=model,
-            messages=messages,
-            tools=tools,
-            tool_choice = "auto",
 
-        )
-        return response
-    except Exception as e:
-        print("Unable to generate ChatCompletion response")
-        print(f"Exception: {e}")
-        return e
+def chat_completion_request(messages, tools=None, tool_choice=None, model="gpt-4o-mini"):
+    return client.chat.completions.create(
+         model=model,
+         messages=messages
+    )
     
 if st.button("Get Weather"):
-    try:
         weather = get_current_weather(location)
         st.write(f"### Weather for {weather['location']}")
         st.write(f"**Temperature:** {weather['temperature']} F")
@@ -69,10 +59,21 @@ if st.button("Get Weather"):
 
         prompt = f"Based on the weather in {weather['location']}, {weather['temperature']} F, and {weather['description']}, what should I wear today?"
         response = chat_completion_request(messages=[{"role": "user", "content": prompt}])
-        st.write("Clothing Recommendation")
-        st.write(response.choices[0].message.content)
-    except Exception as e:
-        st.error(str(e))
+
+        try:
+             response = client.chat.completions.create(
+                  model = "gpt-4o-mini"
+                  messages=[{
+                       "role": "user",
+                       "content": prompt
+                  }]
+             )
+             st.write("### Clothing Recommendation")
+             st.write(response.choices[0].message.content)
+        except Exception as e:
+             st.error("Error generating clothing recommendation.")
+
+     
 
 
 
