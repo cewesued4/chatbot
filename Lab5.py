@@ -42,13 +42,33 @@ def get_current_weather(location):
            'temperature': float(current['temp_F']),
            'description': current['weatherDesc'][0]['value']}
 
-location = st.text_input("Enter a city, zip code, airport code, or landmark:")
+location = st.text_input("Enter a city and state")
 
-
-def chat_completion_request(messages, tools=None, tool_choice=None, model="gpt-4o-mini"):
+tool = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_current_weather",
+            "description": "Get the current weather for a location",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "location": {
+                        "type": "string",
+                        "description": "City and state"
+                    }
+                },
+                "required": ["location"]
+            }
+        }
+    }
+]
+def chat_completion_request(messages, tools=None, tool_choice= "auto", model="gpt-4o-mini"):
     return client.chat.completions.create(
          model=model,
-         messages=messages
+         messages=messages,
+         tools=tools,
+         tool_choice=tool_choice
     )
     
 if st.button("Get Weather"):
@@ -58,7 +78,7 @@ if st.button("Get Weather"):
         st.write(f"**Conditions:** {weather['description']}")
 
         prompt = f"Based on the weather in {weather['location']}, {weather['temperature']} F, and {weather['description']}, what should I wear today?"
-        response = chat_completion_request(messages=[{"role": "user", "content": prompt}])
+        response = chat_completion_request(messages=[{"role": "user", "content": prompt}], tools=tool)
 
         try:
              response = client.chat.completions.create(
