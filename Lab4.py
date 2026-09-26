@@ -1,7 +1,6 @@
 import streamlit as st
 from openai import OpenAI
 import pysqlite3
-import sys
 sys.modules["sqlite3"] = pysqlite3
 import chromadb
 import pypdf 
