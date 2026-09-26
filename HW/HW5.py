@@ -92,6 +92,9 @@ if prompt := st.chat_input("What is up?"):
         response = st.write_stream(stream)
     st.session_state.messages.append(
         {"role": "assistant", "content": response})
+
+if "messages" not in st.session_state:
+    st.session_state["messages"] = [{"role": "assistant","content":"How can I help you?"}]
 #IGNORE
 #if st.button("Get Weather"):
         #weather = get_current_weather(location)
