@@ -32,7 +32,7 @@ if 'openai_client' not in st.session_state:
 # Show title and description.
 st.title("💬 RAG Course Bot")
 st.write(
-    "Enter in the location you want to get weather information for." 
+    "This is a simple chatbot using embeddings from Lab 4." 
 )
 
 def relevant_course_info(embedding):
