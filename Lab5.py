@@ -17,8 +17,7 @@ client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 # Show title and description.
 st.title("💬 Weather Bot")
 st.write(
-    "This is a simple chatbot that uses OpenAI and Gemini models to summarize any document. " 
-        "Simply upload or search a file and select the summary type, as well as language, of your choice from the drop down menu to begin."
+    "Enter in the location you want to get weather information for." 
 )
 
 def get_current_weather(location):
