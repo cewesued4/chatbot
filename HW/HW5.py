@@ -70,7 +70,11 @@ def chat_completion_request(messages, tools=None, tool_choice= "auto", model="gp
          tools=tools,
          tool_choice=tool_choice
     )
-
+if 'client' not in st.session_state:
+    api_key = st.secrets["OPENAI_API_KEY"]
+    st.session_state.client = OpenAI(api_key=api_key)
+if "messages" not in st.session_state:
+    st.session_state["messages"] = [{"role": "assistant","content":"How can I help you?"}]
 if prompt := st.chat_input("What is up?"):
     st.session_state.messages.append({"role":"user","content": prompt})
     with st.chat_message("user"):
@@ -93,8 +97,7 @@ if prompt := st.chat_input("What is up?"):
     st.session_state.messages.append(
         {"role": "assistant", "content": response})
 
-if "messages" not in st.session_state:
-    st.session_state["messages"] = [{"role": "assistant","content":"How can I help you?"}]
+
 #IGNORE
 #if st.button("Get Weather"):
         #weather = get_current_weather(location)
