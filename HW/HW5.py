@@ -45,6 +45,16 @@ def relevant_course_info(embedding):
            
     )
    st.write(results)
+   results = collection.query(
+    query_embeddings=[query_embedding],
+    n_results=7
+)
+
+st.write("IDs returned:")
+st.write(results["ids"])
+
+st.write("Distances:")
+st.write(results["distances"])
 tool = [
     {
         "type": "function",
