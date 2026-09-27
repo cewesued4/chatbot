@@ -24,6 +24,7 @@ if not Path(extract_path).exists():
 chroma_client = chromadb.PersistentClient(path='./ChromaDB_for_Lab')
 collection = chroma_client.get_or_create_collection(name='Lab4Collection')
 
+st.write("Collection count:", collection.count())
 if 'openai_client' not in st.session_state:
     st.session_state.openai_client = OpenAI(api_key=st.secrets.OPENAI_API_KEY)
 
