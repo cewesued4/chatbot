@@ -41,20 +41,16 @@ def relevant_course_info(embedding):
        #Get the text related to this question (this prompt)
    results = collection.query(
         query_embeddings = [query_embedding],
-        n_results=3, #The number of closest documents to return
+        n_results=7, #The number of closest documents to return
            
     )
    st.write(results)
-   results = collection.query(
-    query_embeddings=[query_embedding],
-    n_results=7
-)
+   st.write("IDs returned:")
+   st.write(results["ids"])
 
-st.write("IDs returned:")
-st.write(results["ids"])
+   st.write("Distances:")
+   st.write(results["distances"])
 
-st.write("Distances:")
-st.write(results["distances"])
 tool = [
     {
         "type": "function",
