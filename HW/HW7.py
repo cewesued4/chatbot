@@ -84,7 +84,7 @@ Rank articles from most important to least important.
 
 If the user asks:
 'Find news about X'
-Return all relevant articles about that company or topic.
+Return a summary about the the specific topic and company as well as a list of relevant articles about that company or topic.
 """
     stream = client.chat.completions.create(
         model = "gpt-4o-mini",
