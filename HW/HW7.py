@@ -4,8 +4,7 @@ import chromadb
 from openai import OpenAI
 import os
 
-st.write(os.path.exists("./ChromaDB_for_NewsDB"))
-st.write(os.listdir("."))
+
 client = OpenAI(api_key=st.secrets.OPENAI_API_KEY)
 
 df = pd.read_csv("news.csv")
@@ -66,10 +65,18 @@ if prompt := st.chat_input("What is up?"):
         model="text-embedding-3-small"
     )
     query_embedding = embedding_response.data[0].embedding
+    results = collection.query(
+        query_embeddings=[query_embedding],
+        n_results=5
+    )
+    retrieved_docs = results["documents"][0]
+
+    context = "\n\n".join(retrieved_docs)
     stream = client.chat.completions.create(
         model = "gpt-4o-mini",
         messages = [{"role": "system", "content": "You are a helpful assistant. After answering, ask if the user would like information. If the user says yes, then answer by giving more information. "
-        "If the user says no, go back to asking what you can help with. Give answers such that someone who is 10 years old can understand. "}]+st.session_state.messages,
+        "If the user says no, go back to asking what you can help with. Give answers such that someone who is 10 years old can understand. "
+        "Here is the context from the retrieved documents:\n" + context}]+st.session_state.messages,
         stream = True
     )
     with st.chat_message("assistant"):
