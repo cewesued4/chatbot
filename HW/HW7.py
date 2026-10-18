@@ -7,17 +7,37 @@ client = OpenAI(api_key=st.secrets.OPENAI_API_KEY)
 
 df = pd.read_csv("news.csv")
 
-st.write("Columns:")
-st.write(df.columns.tolist())
-
-st.write("First 5 rows:")
-st.dataframe(df.head())
-
-st.stop()
-
 chroma_client = chromadb.PersistentClient(path='./ChromaDB_for_NewsDB')
 collection = chroma_client.get_or_create_collection(name='news_articles')
 
+for idx, row in df.iterrows():
+
+    article_text = f"""
+    Company: {row['company_name']}
+    Date: {row['Date']}
+
+    Article:
+    {row['Document']}
+
+    Source:
+    {row['URL']}
+    """
+    embedding = client.embeddings.create(
+        model="text-embedding-3-small",
+        input=article_text
+    ).data[0].embedding
+
+    collection.add(
+        ids=[str(idx)],
+        embeddings=[embedding],
+        documents=[article_text],
+        metadatas=[{
+            "company": row["company_name"],
+            "date": str(row["Date"]),
+            "url": row["URL"]
+            
+        }]
+    )
 
 #this configures the Gemini SDK globally with the Open AI API key
 #the Gemini SDK stores the API key inside of the genai module
