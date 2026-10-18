@@ -2,7 +2,10 @@ import streamlit as st
 import pandas as pd
 import chromadb
 from openai import OpenAI
+import os
 
+st.write(os.path.exists("./ChromaDB_for_NewsDB"))
+st.write(os.listdir("."))
 client = OpenAI(api_key=st.secrets.OPENAI_API_KEY)
 
 df = pd.read_csv("news.csv")
