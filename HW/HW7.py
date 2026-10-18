@@ -6,7 +6,8 @@ from openai import OpenAI
 client = OpenAI(api_key=st.secrets.OPENAI_API_KEY)
 
 df = pd.read_csv("news.csv")
-
+st.write(df.columns)
+print(df.columns)
 chroma_client = chromadb.PersistentClient(path='./ChromaDB_for_NewsDB')
 collection = chroma_client.get_or_create_collection(name='news_articles')
 
