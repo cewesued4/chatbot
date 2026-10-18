@@ -72,6 +72,7 @@ if prompt := st.chat_input("What is up?"):
     retrieved_docs = results["documents"][0]
 
     context = "\n\n".join(retrieved_docs)
+    system_prompt = "You are a helpful assistant."
     stream = client.chat.completions.create(
         model = "gpt-4o-mini",
         messages = [{"role": "system", "content": system_prompt},
