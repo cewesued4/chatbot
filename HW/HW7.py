@@ -74,9 +74,22 @@ if prompt := st.chat_input("What is up?"):
     context = "\n\n".join(retrieved_docs)
     stream = client.chat.completions.create(
         model = "gpt-4o-mini",
-        messages = [{"role": "system", "content": "You are a helpful assistant. After answering, ask if the user would like information. If the user says yes, then answer by giving more information. "
+        messages = [{"role": "system", 
+                     "content": "You are a helpful assistant. After answering, ask if the user would like information. If the user says yes, then answer by giving more information. "
         "If the user says no, go back to asking what you can help with. Give answers such that someone who is 10 years old can understand. "
-        "Here is the context from the retrieved documents:\n" + context}]+st.session_state.messages,
+        },
+        {
+            "role": "system",
+            "content": f"""
+Retrieved Articles:
+{context}
+"""
+        },
+        {
+            "role": "user",
+            "content": "Here is the context from the retrieved documents:\n" + context
+        }
+    ] + st.session_state.messages,
         stream = True
     )
     with st.chat_message("assistant"):
