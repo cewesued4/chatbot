@@ -8,6 +8,34 @@ import os
 client = OpenAI(api_key=st.secrets.OPENAI_API_KEY)
 
 df = pd.read_csv("news.csv")
+#for idx, row in df.iterrows(): #used copilot here to see how to create an embedding for a list of non-document files/csv file with multiple documents inside 
+
+    #article_text = f"""
+    #Company: {row['company_name']}
+    #Date: {row['Date']}
+
+    #Article:
+    #{row['Document']}
+
+    #Source:
+    #{row['URL']}
+    #"""
+    #embedding = client.embeddings.create(
+        #model="text-embedding-3-small",
+        #input=article_text
+    #).data[0].embedding
+
+    #collection.add(
+        #ids=[str(idx)],
+        #embeddings=[embedding],
+        #documents=[article_text],
+        #metadatas=[{
+        #    "company": row["company_name"],
+        #    "date": str(row["Date"]),
+        #    "url": row["URL"]
+        #    
+        #}]
+    #)
 
 chroma_client = chromadb.PersistentClient(path='./ChromaDB_for_NewsDB')
 collection = chroma_client.get_or_create_collection(name='news_articles')
