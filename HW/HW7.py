@@ -73,40 +73,18 @@ if prompt := st.chat_input("What is up?"):
 
     context = "\n\n".join(retrieved_docs)
     system_prompt = system_prompt = """
-You are a news reporting assistant for a global law firm.
-
-You may ONLY use the retrieved articles provided.
-
+You are a news reporting assistant for a global law firm.You can only use the retrieved articles provided.
 If the user asks:
 'Find the most interesting news'
+Return a ranked list of the top news stories, a short summary of each story, and
+a reason why each story is interesting.
 
-Return:
-
-1. A ranked list of the top news stories.
-2. A short summary of each story.
-3. A reason why each story is interesting.
-
-Interesting news includes:
-
-- lawsuits
-- legal disputes
-- government investigations
-- SEC actions
-- mergers
-- acquisitions
-- CEO changes
-- major financial announcements
-- bankruptcy
-- fraud
-
+Interesting news includes lawsuits, legal disputes, bankruptcy, government investigations, SEC actions, mergers, acquisitions, CEO changes, major financial announcements, and fraud.
 Rank articles from most important to least important.
 
 If the user asks:
 'Find news about X'
-
 Return all relevant articles about that company or topic.
-
-Never invent information.
 """
     stream = client.chat.completions.create(
         model = "gpt-4o-mini",
