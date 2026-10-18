@@ -42,10 +42,10 @@ tool = [
         }
     }
 ]
-def chat_completion_request(messages, tools=None, tool_choice= "auto", model="gpt-4o-mini"):
+def chat_completion_request(messages, tools=None, tool_choice= "auto", model="gpt-4o-mini", system_prompt="You are a helpful assistant."):
     return client.chat.completions.create(
          model=model,
-         messages=messages,
+         messages=[{"role": "system", "content": system_prompt}] + messages,
          tools=tools,
          tool_choice=tool_choice
     )
@@ -74,10 +74,7 @@ if prompt := st.chat_input("What is up?"):
     context = "\n\n".join(retrieved_docs)
     stream = client.chat.completions.create(
         model = "gpt-4o-mini",
-        messages = [{"role": "system", 
-                     "content": "You are a helpful assistant. After answering, ask if the user would like information. If the user says yes, then answer by giving more information. "
-        "If the user says no, go back to asking what you can help with. Give answers such that someone who is 10 years old can understand. "
-        },
+        messages = [{"role": "system", "content": system_prompt},
         {
             "role": "system",
             "content": f"""
@@ -87,7 +84,7 @@ Retrieved Articles:
         },
         {
             "role": "user",
-            "content": "Here is the context from the retrieved documents:\n" + context
+            "content": prompt
         }
     ] + st.session_state.messages,
         stream = True
