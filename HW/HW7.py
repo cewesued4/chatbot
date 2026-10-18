@@ -7,7 +7,7 @@ client = OpenAI(api_key=st.secrets.OPENAI_API_KEY)
 
 df = pd.read_csv("news.csv")
 st.write(df.columns)
-print(df.columns)
+
 chroma_client = chromadb.PersistentClient(path='./ChromaDB_for_NewsDB')
 collection = chroma_client.get_or_create_collection(name='news_articles')
 
@@ -27,15 +27,10 @@ collection = chroma_client.get_or_create_collection(
     name="news_articles"
 )
 
-for idx, row in df.iterrows():
+st.write("Columns found:")
+st.write(df.columns.tolist())
 
-    article_text = f"""
-    Title: {row['title']}
-    Company: {row['company']}
-    Date: {row['date']}
-    Article:
-    {row['article']}
-    """
+st.stop()
 
     embedding = client.embeddings.create(
         model="text-embedding-3-small",
