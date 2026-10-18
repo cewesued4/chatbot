@@ -10,6 +10,7 @@ df = pd.read_csv("news.csv")
 chroma_client = chromadb.PersistentClient(path='./ChromaDB_for_NewsDB')
 collection = chroma_client.get_or_create_collection(name='news_articles')
 
+st.write("Collection count:", collection.count())
 
 #this configures the Gemini SDK globally with the Open AI API key
 #the Gemini SDK stores the API key inside of the genai module
