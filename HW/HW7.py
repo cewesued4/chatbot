@@ -50,26 +50,6 @@ st.write(
     "This is a simple chatbot using embeddings from Lab 5 for news articles."
 )
 
-
-#tool = [
-    #{
-        #"type": "function",
-        #"function": {
-            #"name": "relevant_course_info",
-            #"description": "Get relevant course information",
-            #"parameters": {
-                #"type": "object",
-                #"properties": {
-                    #"response": {
-                        #"type": "object",
-                        #"description": "The response from the language model"
-                    #}
-                #},
-                #"required": ["response"]
-            #}
-       # }
-    #
-#]
 def chat_completion_request(messages, tools=None, tool_choice= "auto", model="gpt-4o-mini", system_prompt="You are a helpful assistant."):
     return client.chat.completions.create(
          model=model,
