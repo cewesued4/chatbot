@@ -12,6 +12,6 @@ HW4 = st.Page('HW/HW4.py', title = "HW4")
 Lab5 = st.Page('Lab5.py', title = "Lab5")
 HW5 =  st.Page('HW/HW5.py', title = "HW5")
 HW7 = st.Page('HW/HW7.py', title = "HW7", default=True)
-pg = st.navigation([Home, Lab1, Lab2, Lab3,Lab4, HW4, Lab5, HW5, HW7])
-
+Lab6 = st.Page('Lab6.py', title = "Lab6", default=True)
+pg = st.navigation([Home, Lab1, Lab2, Lab3,Lab4, HW4, Lab5, HW5, HW7, Lab6])
 pg.run()
