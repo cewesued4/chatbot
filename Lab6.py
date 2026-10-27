@@ -59,13 +59,13 @@ agent = create_agent(
      system_prompt="You are a helpful assistant that provides the weather."
 
 )
-def chat_completion_request(messages, tools=None, tool_choice= "auto", model="gpt-4o-mini"):
-    return client.chat.completions.create(
-         model=model,
-         messages=messages,
-         tools=tools,
-         tool_choice=tool_choice
-    )
+#def chat_completion_request(messages, tools=None, tool_choice= "auto", model="gpt-4o-mini"):
+    #return client.chat.completions.create(
+         #model=model,
+         #messages=messages,
+         #tools=tools,
+         #tool_choice=tool_choice
+    #)
     
 if st.button("Get Weather"):
         weather = get_current_weather(location)
@@ -76,7 +76,7 @@ if st.button("Get Weather"):
              {"messages":[{"role":"user","content":f"What should I wear in {location}?"}]}
         )
         st.write("### Clothing Recommendation")
-        st.write(result.choices[0].messages[-1].content)
+        st.write(result.choices[0].messages.content)
          
 
      
