@@ -1,5 +1,6 @@
 from pyexpat.errors import messages
 
+import openai
 import requests
 # location can be a city, a zip code, an airpot code ('SYR'),
 # or a landmark('Eiffel+Tower')
@@ -7,6 +8,10 @@ import requests
 import streamlit as st
 from openai import OpenAI
 from bs4 import BeautifulSoup
+import langchain
+
+
+
 
 #import google.generativeai as genai #had to look this import up
 
@@ -20,7 +25,11 @@ st.write(
     "Enter in the location you want to get weather information for." 
 )
 
-def get_current_weather(location):
+def get_current_weather(location: str = "Syracuse, NY") -> dict:
+    """Get the weather for a given location. Then return the following:
+    Location: str
+    Temperature: float
+    Description of the weather conditions and what to wear: str"""
     url = f"https://wttr.in/{location}?format=j1"
     response = requests.get(url, timeout=10)
     if response.status_code != 200:
@@ -43,25 +52,7 @@ def get_current_weather(location):
 
 location = st.text_input("Enter a city and state")
 
-tool = [
-    {
-        "type": "function",
-        "function": {
-            "name": "get_current_weather",
-            "description": "Get the current weather for a location",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "location": {
-                        "type": "string",
-                        "description": "City and state"
-                    }
-                },
-                "required": ["location"]
-            }
-        }
-    }
-]
+
 def chat_completion_request(messages, tools=None, tool_choice= "auto", model="gpt-4o-mini"):
     return client.chat.completions.create(
          model=model,
