@@ -76,7 +76,7 @@ if st.button("Get Weather"):
              {"messages":[{"role":"user","content":f"What should I wear in {location}?"}]}
         )
         st.write("### Clothing Recommendation")
-        st.write(result.choices[0].messages.content)
+        st.chat_message("assistant").write(result.choices[0].messages.content)
          
 
      
