@@ -9,7 +9,7 @@ import streamlit as st
 from openai import OpenAI
 from bs4 import BeautifulSoup
 import langchain
-
+from langchain.agents import create_agent
 
 
 
@@ -24,6 +24,7 @@ st.title("💬 Weather Bot")
 st.write(
     "Enter in the location you want to get weather information for." 
 )
+
 
 def get_current_weather(location: str = "Syracuse, NY") -> dict:
     """Get the weather for a given location. Then return the following:
@@ -52,7 +53,12 @@ def get_current_weather(location: str = "Syracuse, NY") -> dict:
 
 location = st.text_input("Enter a city and state")
 
+agent = create_agent(
+     model="gpt-4o-mini",
+     tools = [get_current_weather],
+     system_prompt="You are a helpful assistant that provides the weather."
 
+)
 def chat_completion_request(messages, tools=None, tool_choice= "auto", model="gpt-4o-mini"):
     return client.chat.completions.create(
          model=model,
@@ -66,22 +72,12 @@ if st.button("Get Weather"):
         st.write(f"### Weather for {weather['location']}")
         st.write(f"**Temperature:** {weather['temperature']} F")
         st.write(f"**Conditions:** {weather['description']}")
-
-        prompt = f"Based on the weather in {weather['location']}, {weather['temperature']} F, and {weather['description']}, what should I wear today?"
-        response = chat_completion_request(messages=[{"role": "user", "content": prompt}], tools=tool)
-
-        try:
-             response = client.chat.completions.create(
-                  model = "gpt-4o-mini",
-                  messages=[{
-                       "role": "user",
-                       "content": prompt
-                  }]
-             )
-             st.write("### Clothing Recommendation")
-             st.write(response.choices[0].message.content)
-        except Exception as e:
-             st.error("Error generating clothing recommendation.")
+        result = agent.invoke(
+             {"messages":[{"role":"user","content":f"What should I wear in {location}?"}]}
+        )
+        st.write("### Clothing Recommendation")
+        st.write(result['messages'][-1]['content'])
+        
 
      
 
