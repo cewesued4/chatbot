@@ -85,7 +85,16 @@ if st.button("Get Weather"):
                   if message.type == "ai" and message.tool_calls:
                        st.write(message.tool_calls)
 
-     
+     #Number 12:
+     #a. There are four messages: one with the human response, the other with the agent response,
+     #another with the tool call, and the last with the ai's final response. 
+     #b. The second message.
+     #c. agent = create_agent(
+     #model="gpt-4o-mini",
+     #tools = [get_current_weather],
+     #system_prompt="You are a helpful assistant that provides the weather."
+
+
 
 
 
