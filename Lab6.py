@@ -77,7 +77,7 @@ if st.button("Get Weather"):
         )
         st.write("### Clothing Recommendation")
         with st.chat_message("assistant"):
-             st.write(result[3]['content'])
+             st.write(result[3])
          
 
      
