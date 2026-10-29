@@ -78,7 +78,12 @@ if st.button("Get Weather"):
         st.write("### Clothing Recommendation")
         with st.chat_message("assistant"):
              st.write(result["messages"][-1].content)
-         
+        with st.expander("Behind the scenes"):
+             for message in result["messages"]:
+                  st.write(f"**{message.type}**")
+                  st.write(message.content)
+                  if message.type == "ai" and message.tool_calls:
+                       st.write(message.tool_calls)
 
      
 
