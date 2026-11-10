@@ -9,3 +9,5 @@ requests
 numpy
 langchain
 langchain-openai
+torch
+sentence-transformers

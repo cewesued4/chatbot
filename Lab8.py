@@ -9,11 +9,22 @@ Search for "TODO" to find the four places you write code.
 
 import json
 import time
+import zipfile
+from pathlib import Path
 
 import numpy as np
 import streamlit as st
 from openai import OpenAI
 from sentence_transformers import CrossEncoder, SentenceTransformer
+
+
+zip_path = "data.zip"
+extract_path = "data"
+
+if not Path(extract_path).exists():
+
+    with zipfile.ZipFile(zip_path, "r") as zip_ref:
+        zip_ref.extractall(extract_path)
 
 DATA_DIR = "data/scifact"
 EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
