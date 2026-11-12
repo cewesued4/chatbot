@@ -249,7 +249,11 @@ def build_context(doc_ids):
 def verify_claim(claim, doc_ids):
     """TODO (Part D): send SYSTEM_TEMPLATE (filled with build_context(doc_ids))
     and the claim to CHAT_MODEL, and return the model's reply text."""
-    raise NotImplementedError("Part D")
+    context = build_context(doc_ids)
+    prompt = SYSTEM_TEMPLATE.format(context=context) + "\n\nClaim: " + claim
+    response = CHAT_MODEL.generate(prompt)
+    return response
+    #raise NotImplementedError("Part D")
 
 
 # ---------- UI ----------
