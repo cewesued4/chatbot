@@ -148,7 +148,7 @@ def load_reranker():
     return CrossEncoder(RERANK_MODEL)
 
 
-def rerank(index, query, hits):
+#def rerank(index, query, hits):
     """Re-score stage 1 hits with the cross-encoder, best first.
 
     TODO (Part B):
@@ -157,19 +157,23 @@ def rerank(index, query, hits):
       2. Score all pairs at once with load_reranker().predict(pairs).
       3. Return the hits as [(chunk_index, reranker_score), ...], highest first.
     """
-    model = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
-    scores = model.predict([("my query", "first passage"),
-                            ("my query", "second passage")])
-    pairs = [(query, index["texts"][chunk_index]) for chunk_index, _ in hits]
+    #model = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+    #scores = model.predict([("my query", "first passage"),
+                            #("my query", "second passage")])
+    #pairs = [(query, index["texts"][chunk_index]) for chunk_index, _ in hits]
     scores = load_reranker().predict(pairs)
     #one score per pair; higher means more relevant
-    hits = sorted(
-        [(chunk_index, score) for (chunk_index, _), score in zip(hits, scores)],
-        key=lambda x: x[1],
-        reverse=True
-    )
-    return hits  # placeholder: no re-ranking yet, so both columns match
-
+    #hits = sorted(
+    #    [(chunk_index, score) for (chunk_index, _), score in zip(hits, scores)],
+    #    key=lambda x: x[1],
+    #    reverse=True
+    #)
+    #return hits  # placeholder: no re-ranking yet, so both columns match
+def rerank(index, query, hits):
+    pairs = [(query, index["texts"][chunk_index]) for chunk_index, _ in hits]
+    scores = load_reranker().predict(pairs)
+    reranked = [(chunk_index, float(score)) for (chunk_index, _), score in zip(hits, scores)]
+    return sorted(reranked, key=lambda x: x[1], reverse=True)
 
 # ---------- Given: metrics ----------
 def recall_at_k(ranked, relevant, k):
