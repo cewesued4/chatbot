@@ -194,7 +194,39 @@ def evaluate(index, n_queries=EVAL_QUERIES, candidates=CANDIDATES, k=CONTEXT_K):
     Return a dict of averages with these keys:
       recall_before, recall_after, rr_before, rr_after, retrieve_ms, rerank_ms
     """
-    raise NotImplementedError("Part C")
+    recall_before = 0.0
+    recall_after = 0.0
+    rr_before = 0.0
+    rr_after = 0.0
+    retrieve_ms = 0.0
+    rerank_ms = 0.0
+
+    for query_id in list(qrels)[:n_queries]:
+        query = queries[query_id]
+        relevant = set(qrels[query_id])
+
+        start = time.perf_counter()
+        hits = retrieve(index, query, candidates)
+        retrieve_ms += (time.perf_counter() - start) * 1000
+        before = to_doc_ids(index, hits)
+
+        start = time.perf_counter()
+        after = to_doc_ids(index, rerank(index, query, hits))
+        rerank_ms += (time.perf_counter() - start) * 1000
+
+        recall_before += recall_at_k(before, relevant, k)
+        recall_after += recall_at_k(after, relevant, k)
+        rr_before += reciprocal_rank(before, relevant)
+        rr_after += reciprocal_rank(after, relevant)
+
+    return {
+        "recall_before": recall_before / n_queries,
+        "recall_after": recall_after / n_queries,
+        "rr_before": rr_before / n_queries,
+        "rr_after": rr_after / n_queries,
+        "retrieve_ms": retrieve_ms / n_queries,
+        "rerank_ms": rerank_ms / n_queries,
+    }
 
 
 # ---------- Part D: generation ----------
