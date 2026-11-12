@@ -18,15 +18,27 @@ from openai import OpenAI
 from sentence_transformers import CrossEncoder, SentenceTransformer
 
 
-zip_path = "data.zip"
-extract_path = "data"
+BASE_DIR = Path(__file__).resolve().parent
+zip_path = BASE_DIR / "data.zip"
+extract_path = BASE_DIR / "data"
 
-if not Path(extract_path).exists():
-
+if not (extract_path / "scifact" / "corpus.jsonl").exists():
     with zipfile.ZipFile(zip_path, "r") as zip_ref:
         zip_ref.extractall(extract_path)
 
-DATA_DIR = "data/scifact"
+
+def _find_data_dir(root: Path) -> str:
+    """Locate the folder that actually contains corpus.jsonl."""
+    matches = list(root.rglob("corpus.jsonl"))
+    if not matches:
+        raise FileNotFoundError(
+            f"corpus.jsonl not found under {root}. "
+            f"Contents: {[p.name for p in root.iterdir()] if root.exists() else 'missing'}"
+        )
+    return str(matches[0].parent)
+
+
+DATA_DIR = _find_data_dir(extract_path)
 EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 RERANK_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 CHAT_MODEL = "gpt-4.1-mini"
