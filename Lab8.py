@@ -160,6 +160,8 @@ def rerank(index, query, hits):
     model = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
     scores = model.predict([("my query", "first passage"),
                             ("my query", "second passage")])
+    pairs = [(query, index["texts"][chunk_index]) for chunk_index, _ in hits]
+    scores = load_reranker().predict(pairs)
     #one score per pair; higher means more relevant
     hits = sorted(
         [(chunk_index, score) for (chunk_index, _), score in zip(hits, scores)],
