@@ -317,6 +317,15 @@ def main():
     # ----- Part D -----
     # TODO (Part D): add a button that calls verify_claim() twice, once with before[:k]
     # and once with after[:k], and shows the two answers in side-by-side columns.
+    if st.button("Verify Claim"):
+        left, right = st.columns(2)
+        with left:
+            st.subheader("Without re-ranking")
+            st.write(verify_claim(claim, before[:k]))
+        with right:
+            st.subheader("With re-ranking")
+            st.write(verify_claim(claim, after[:k]))
+            
 
 
 if __name__ == "__main__":
