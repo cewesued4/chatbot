@@ -6,7 +6,8 @@ search. Stage 2 (yours) is a cross-encoder that re-scores the stage 1 candidates
 
 Search for "TODO" to find the four places you write code.
 """
-
+#build_index() puts the title in the front of every chunk to keep a sense of semantic structure.
+#to_doc_ids are to identify the documents through metadata information
 import json
 import time
 import zipfile
