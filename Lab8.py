@@ -157,6 +157,15 @@ def rerank(index, query, hits):
       2. Score all pairs at once with load_reranker().predict(pairs).
       3. Return the hits as [(chunk_index, reranker_score), ...], highest first.
     """
+    model = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+    scores = model.predict([("my query", "first passage"),
+                            ("my query", "second passage")])
+    #one score per pair; higher means more relevant
+    hits = sorted(
+        [(chunk_index, score) for (chunk_index, _), score in zip(hits, scores)],
+        key=lambda x: x[1],
+        reverse=True
+    )
     return hits  # placeholder: no re-ranking yet, so both columns match
 
 
