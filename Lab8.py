@@ -246,15 +246,26 @@ def build_context(doc_ids):
     )
 
 
-def verify_claim(claim, doc_ids):
+#def verify_claim(claim, doc_ids):
     """TODO (Part D): send SYSTEM_TEMPLATE (filled with build_context(doc_ids))
     and the claim to CHAT_MODEL, and return the model's reply text."""
-    context = build_context(doc_ids)
-    prompt = SYSTEM_TEMPLATE.format(context=context) + "\n\nClaim: " + claim
-    response = CHAT_MODEL.generate(prompt)
-    return response
+    #context = build_context(doc_ids)
+    #prompt = SYSTEM_TEMPLATE.format(context=context) + "\n\nClaim: " + claim
+    #response = CHAT_MODEL.generate(prompt)
+    #return response
     #raise NotImplementedError("Part D")
-
+def verify_claim(claim, doc_ids):
+    """Send the retrieved abstracts and the claim to the chat model."""
+    client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+    system_msg = SYSTEM_TEMPLATE.format(context=build_context(doc_ids))
+    response = client.chat.completions.create(
+        model=CHAT_MODEL,
+        messages=[
+            {"role": "system", "content": system_msg},
+            {"role": "user", "content": f"Claim: {claim}"},
+        ],
+    )
+    return response.choices[0].message.content
 
 # ---------- UI ----------
 def show_docs(doc_ids, relevant):
@@ -325,7 +336,7 @@ def main():
         with right:
             st.subheader("With re-ranking")
             st.write(verify_claim(claim, after[:k]))
-            
+
 
 
 if __name__ == "__main__":
