@@ -41,8 +41,12 @@ EVAL_QUERIES = 100   # test claims used in Part C
 #   - tell the model to use only the abstracts in {context}
 #   - ask for a verdict: SUPPORTED, REFUTED, or NOT ENOUGH EVIDENCE
 #   - ask it to cite the abstracts it used by their [id]
-SYSTEM_TEMPLATE = "{context}"
+system_prompt = """You are a helpful assistant that evaluates scientific claims based on the provided abstracts.
+You must use only the abstracts in {context}.
+Provide a verdict: SUPPORTED, REFUTED, or NOT ENOUGH EVIDENCE.
+Cite the abstracts you used by their [id]."""
 
+SYSTEM_TEMPLATE = "{context}"
 
 # ---------- Given: loading ----------
 @st.cache_data
