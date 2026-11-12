@@ -194,6 +194,8 @@ def evaluate(index, n_queries=EVAL_QUERIES, candidates=CANDIDATES, k=CONTEXT_K):
     Return a dict of averages with these keys:
       recall_before, recall_after, rr_before, rr_after, retrieve_ms, rerank_ms
     """
+    _, queries, qrels = load_scifact()   # add this line
+    recall_before = 0.0
     recall_before = 0.0
     recall_after = 0.0
     rr_before = 0.0
