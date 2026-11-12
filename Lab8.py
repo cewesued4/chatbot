@@ -292,6 +292,15 @@ def main():
     # ----- Part C -----
     # TODO (Part C): add a button that runs evaluate(index, EVAL_QUERIES, candidates, k)
     # and shows Recall@k, MRR and added latency with st.metric (use delta= for the change).
+    if st.button("Evaluate"):
+        results = evaluate(index, EVAL_QUERIES, candidates, k)
+        st.metric("Recall@k (before)", f"{results['recall_before']:.3f}")
+        st.metric("Recall@k (after)", f"{results['recall_after']:.3f}", delta=results['recall_after'] - results['recall_before'])
+        st.metric("MRR (before)", f"{results['rr_before']:.3f}")
+        st.metric("MRR (after)", f"{results['rr_after']:.3f}", delta=results['rr_after'] - results['rr_before'])
+        st.metric("Retrieval latency (ms)", f"{results['retrieve_ms']:.0f}")
+        st.metric("Re-ranking latency (ms)", f"{results['rerank_ms']:.0f}")
+        st.metric("Total latency (ms)", f"{results['retrieve_ms'] + results['rerank_ms']:.0f}")
 
     # ----- Part D -----
     # TODO (Part D): add a button that calls verify_claim() twice, once with before[:k]
