@@ -227,9 +227,9 @@ with st.sidebar:
     st.caption(f"Memories in store (all users): {collection.count()}")
 
 if not user_id:
-    st.write(recall_memories(collection, user_id, "how should you answer me"))
     st.info("Type your name in the sidebar to start chatting.")
     st.stop()
+    st.write(recall_memories(collection, user_id, "how should you answer me"))
 
 # if someone switches to a different user id, start a fresh chat so the Lab 3 buffer
 # doesn't carry the last person's conversation into the new person's prompt
