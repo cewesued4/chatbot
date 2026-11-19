@@ -24,6 +24,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+from httpx2 import query
 import streamlit as st
 from openai import OpenAI
 import chromadb
@@ -167,12 +168,31 @@ def recall_memories(collection, user_id: str, query: str, k: int = RECALL_K):
     #   3. loop over zip(results["documents"][0], results["metadatas"][0]) and build the list
     # stretch (expiry): only keep memories newer than MEMORY_DAYS using
     #   {"$and": [{"user_id": user_id}, {"timestamp": {"$gte": cutoff}}]}
-    return []   # <- replace this line
-
+    # return []   # <- replace this line
+    if collection.count() == 0:
+        return []
+    cutoff = time.time() - (MEMORY_DAYS * 24 * 60 * 60) if MEMORY_DAYS > 0 else 0
+    results = collection.query(
+        query_texts=[query],
+        n_results=k,
+        
+        where={"$and": [{"user_id": user_id}, {"timestamp": {"$gte": cutoff}}]}
+    )
+    memories = []
+    for doc, meta in zip(results["documents"][0], results["metadatas"][0]):
+        memories.append({
+            "text": doc,
+            "type": meta["type"],
+            "date": meta["date"]
+        })
+    return memories
 
 def forget_user(collection, user_id: str) -> bool:
     # STRETCH: delete every memory for this user (one line with collection.delete(where=...))
     # then return True
+    delete_count = collection.delete(where={"user_id": user_id})
+    if delete_count > 0:
+        return True
     st.warning("Forget me is a stretch goal: write forget_user() first.")
     return False
 
