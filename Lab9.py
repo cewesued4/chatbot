@@ -141,6 +141,16 @@ def save_memory(collection, user_id: str, text: str) -> str:
     #   "date":      datetime.now().strftime("%Y-%m-%d")      (readable date for the prompt)
     #   "type":      memory_type(text)                        ("preference" or "fact")
     # ... your code here ...
+    collection.upsert(
+        ids=[memory_id],
+        documents=[text],
+        metadatas=[{
+            "user_id": user_id,
+            "timestamp": time.time(),
+            "date": datetime.now().strftime("%Y-%m-%d"),
+            "type": memory_type(text)
+        }]
+    )
     return memory_id
 
 
