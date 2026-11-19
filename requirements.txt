@@ -11,3 +11,4 @@ langchain
 langchain-openai
 torch
 sentence-transformers
+openai-agents
