@@ -28,6 +28,7 @@ import streamlit as st
 from openai import OpenAI
 import chromadb
 from chromadb.utils import embedding_functions
+from sympy import true
 
 # settings
 MEMORY_FOLDER = Path(__file__).parent / "lab9_memory_db"   # chroma writes its files here (survives a restart)
@@ -101,13 +102,24 @@ collection = st.session_state.Lab9_MemoryDB
 # Part B: WRITE - decide what is worth remembering, then save it
 # =====================================================================
 def should_remember(text: str) -> bool:
+    clean = text.strip().lower()
+    if len(clean.split()) < MIN_WORDS:
+        return False
+    if clean.endswith("?"):
+        return False
+    if any (f" {phrase} " in f" {clean} " for phrase in ABOUT_ME_PHRASES):
+        return True
+    return False
+   
+    
+
     # TODO Part B, step 4: return True only for statements about the user worth keeping.
     #   1. clean = text.strip().lower()
     #   2. return False if it has fewer than MIN_WORDS words  ("ok thanks", "hi")
     #   3. return False if it ends with "?"                    (a question is not a fact)
     #   4. return True if any phrase in ABOUT_ME_PHRASES appears in it, else False
     #   hint: check " " + phrase inside " " + clean + " " so "my " does not match "army "
-    return False   # <- replace this line
+    #return False   # <- replace this line
 
 
 def memory_type(text: str) -> str:
