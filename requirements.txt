@@ -11,4 +11,4 @@ langchain
 langchain-openai
 torch
 sentence-transformers
-
+streamlit_ace
