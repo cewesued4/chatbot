@@ -1,3 +1,4 @@
+"""
 import streamlit as st
 from streamlit_ace import st_ace
 import io, contextlib, traceback
@@ -20,3 +21,13 @@ if st.button("Run"):
         st.code(buf.getvalue() or "(no output)")
     except Exception:
         st.error(traceback.format_exc())
+        """
+from jupyter_client.manager import start_new_kernel
+
+if "kernel" not in st.session_state:
+    km, kc = start_new_kernel(kernel_name="python3")
+    st.session_state.kernel = (km, kc)
+
+km, kc = st.session_state.kernel
+msg_id = kc.execute(code)
+# then poll kc.get_iopub_msg() and render stream / display_data / error messages
