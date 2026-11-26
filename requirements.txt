@@ -12,3 +12,4 @@ langchain-openai
 torch
 sentence-transformers
 jupyter_client.manager
+streamlit_ace
