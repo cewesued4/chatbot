@@ -67,4 +67,52 @@ def handle_tool(name, args):
 
 # ---------- agent loop ----------
 def agent_turn(user_text: str) -> str:
-    ss.api_msgs.append({"role": "user",
+    ss.api_msgs.append({"role": "user", "content": user_text})
+    for _ in range(8):
+        resp = client.chat.completions.create(
+            model=MODEL, messages=ss.api_msgs, tools=TOOLS,
+        )
+        msg = resp.choices[0].message
+        # store the assistant message (including any tool calls) in history
+        ss.api_msgs.append(msg.model_dump(exclude_none=True))
+
+        if not msg.tool_calls:
+            return msg.content or ""
+
+        for call in msg.tool_calls:
+            try:
+                args = json.loads(call.function.arguments or "{}")
+            except json.JSONDecodeError:
+                args = {}
+            result = handle_tool(call.function.name, args)
+            ss.api_msgs.append({
+                "role": "tool",
+                "tool_call_id": call.id,
+                "content": result,
+            })
+    return "Stopped after reaching the step limit."
+
+# ---------- UI ----------
+left, right = st.columns(2)
+
+with left:
+    st.subheader("Editor")
+    ss.code = st_ace(
+        value=ss.code, language="python", theme="monokai", height=350,
+        auto_update=True, key=f"ace_{ss.ver}",
+    ) or ""
+    if st.button("Run"):
+        ss.output = run_code(ss.code)
+    st.subheader("Output")
+    st.code(ss.output or "(nothing run yet)")
+
+with right:
+    st.subheader("Assistant")
+    for role, text in ss.chat:
+        st.chat_message(role).write(text)
+    if prompt := st.chat_input("Ask the assistant to write or fix code..."):
+        ss.chat.append(("user", prompt))
+        with st.spinner("Working..."):
+            reply = agent_turn(prompt)
+        ss.chat.append(("assistant", reply))
+        st.rerun()
